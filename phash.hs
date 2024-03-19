@@ -19,6 +19,18 @@ cnk n k = div (factorial' n k) (factorial k)
 sortDesc :: (Ord a) => [a] -> [a]
 sortDesc = sortBy (flip compare)
 
+shiftAmplifier :: Integer -> Integer
+shiftAmplifier = (^5)
+
+charShift :: Char -> Integer
+charShift c = shiftAmplifier $ toInteger $ ord c
+
+dropElementInfo :: ([a], Integer) -> (Integer, Integer)
+dropElementInfo (src, m) = (toInteger $ length src, m)
+
+addLength :: [a] -> ([a], Integer)
+addLength lst = (lst, toInteger $ length lst)
+
 -- PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN
 
 sourceUpper :: [Char]
@@ -28,23 +40,16 @@ sourceLower :: [Char]
 sourceLower = "ckapzfitqdxnwehrolmbyvsujg"
 
 sourceSpecial :: [Char]
-sourceSpecial = "!%&#_$+=?*"
+sourceSpecial = "!?%&|#-$+@=*"
 
 sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
 
-defaultPasswordLength :: Int
-defaultPasswordLength = 20
+defaultSources :: [[Char]]
+defaultSources = [sourceUpper, sourceLower, sourceSpecial, sourceNumbers]
 
--- parseKey :: Integer -> Integer -> (a -> Integer) -> (Integer, Integer)
--- parseKey key n shift = (keyMod, keyDiv + keyMod + shift keyMod)
---     where (keyDiv, keyMod) = divMod key n
-
-shiftAmplifier :: Integer -> Integer
-shiftAmplifier = (^5)
-
-charShift :: Char -> Integer
-charShift c = shiftAmplifier $ toInteger $ ord c
+defaultAmounts :: [Integer]
+defaultAmounts = [6, 6, 4, 4]
 
 -- HASH GENERATING FUNCTIONS
 
@@ -59,22 +64,23 @@ chooseOrdered key shift (src, m)  = curElt : chooseOrdered nextKey shift (filter
     curElt = src !! fromIntegral keyMod
     nextKey = keyDiv + keyMod + shift curElt
 
--- On the segment from 0 to [this] the previous function is injective (in fact bijective)
-chooseInjectivityRange :: ([a], Integer) -> Integer
-chooseInjectivityRange (src, m) = factorial' (toInteger $ length src) m
+-- On the integer segment from 0 to [this] the previous function is injective (in fact bijective)
+chooseInjectivityRange :: (Integer, Integer) -> Integer
+chooseInjectivityRange pair = factorial' (fst pair) (snd pair)
 
+-- Apply the `chooseOrdered` function to a list, modifying the key every time
 mapChooseOrdered :: (Eq a) => Integer -> (a -> Integer) -> [([a], Integer)] -> [[a]]
 mapChooseOrdered _ _ [] = []
 mapChooseOrdered key shift srcs = curSelection : mapChooseOrdered nextKey shift (tail srcs)
     where
     curSrc = head srcs
-    (keyDiv, keyMod) = divMod key $ chooseInjectivityRange curSrc
+    (keyDiv, keyMod) = divMod key $ chooseInjectivityRange $ dropElementInfo curSrc
     curSelection = chooseOrdered keyMod shift curSrc
     keyShift = shiftAmplifier $ (sum . map shift) curSelection
     nextKey = keyDiv + keyMod + keyShift
 
--- On the segment from 0 to [this] the previous function is injective (in fact bijective)
-mapChooseInjectivityRange :: [([a], Integer)] -> Integer
+-- On the integer segment from 0 to [this] the previous function is injective (in fact bijective)
+mapChooseInjectivityRange :: [(Integer, Integer)] -> Integer
 mapChooseInjectivityRange = product . (map chooseInjectivityRange)
 
 -- Mix a list of lists together, keeping the elements of the individual lists in order.
@@ -92,64 +98,61 @@ shuffleLists key shift srcs = curElt :
     curElt = head curLst
     nextKey = keyDiv + keyMod + shift curElt
 
--- On the segment from 0 to [this] the previous function is injective
-shuffleInjectivityRange :: [[a]] -> Integer
-shuffleInjectivityRange srcs = product $ zipWith (^) [1..(toInteger $ length srcs)] (sortDesc $ map length srcs)
+-- On the integer segment from 0 to [this] the previous function is injective. The input is `map length [[a]]`
+shuffleInjectivityRange :: [Integer] -> Integer
+shuffleInjectivityRange srcs = product $ zipWith (^) [1 .. (toInteger $ length srcs)] (sortDesc srcs)
 
 -- Get a hash sequence from key, shift function and source list
 getHash :: (Eq a) => Integer -> (a -> Integer) -> [([a], Integer)] -> [a]
 getHash key shift srcs = shuffleLists nextKey shift hashSelections
     where
-    (keyDiv, keyMod) = divMod key $ mapChooseInjectivityRange srcs
+    (keyDiv, keyMod) = divMod key $ mapChooseInjectivityRange $ map dropElementInfo srcs
     hashSelections = mapChooseOrdered keyMod shift srcs
     keyShift = shiftAmplifier $ (sum . map (product . map shift)) hashSelections
     nextKey = keyDiv + keyMod + keyShift
 
+-- All keys between 0 and [this] are guaranteed to give different hashes
+getHashInjectivityRange :: [(Integer, Integer)] -> Integer
+getHashInjectivityRange pairs = (mapChooseInjectivityRange pairs) * (shuffleInjectivityRange $ map snd pairs)
+
 -- Total theoretical number of distinct hash sequences arising from given source list
-numberOfHashes :: [([a], Integer)] -> Integer
+numberOfHashes :: [(Integer, Integer)] -> Integer
 numberOfHashes srcs = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
     where
-    fsts = map (toInteger . length . fst) srcs
+    fsts = map fst srcs
     snds = map snd srcs
 
+-- MANAGING THE PUBLIC KEY
+-- string must be maximum 32 characters in length to insure injectivity
+
 -- Convert a string to a public key by using the base-128 number system.
-getPublicKey :: String -> Integer
+getPublicKey :: [Char] -> Integer
 getPublicKey "" = 0
 getPublicKey (c:cs) = (toInteger $ ord c) * (128 ^ (length cs)) + getPublicKey cs
 
--- replace :: String -> (Char, Char) -> String
--- replace "" _ = ""
--- replace (c:str) (k,v)
---     | c == k = v : replace str (k,v)
---     | otherwise = c : replace str (k,v)
---
--- replace' :: String -> [(Char, Char)] -> String
--- replace' str [] = str
--- replace' str ((k,v):kvs) = replace' (replace str (k,v)) kvs
---
--- includeInString :: Integer -> String -> String -> String
--- includeInString key str incl = 
---     let
---         replaceCount = toInteger $ min (div (length str) 4) (length incl)
---         strChars = chooseOrdered key str replaceCount
---         inclChars = chooseOrdered key incl replaceCount
---         charMap = zip strChars inclChars
---     in
---         replace' str charMap
---
--- includeInString' :: Integer -> String -> [String] -> String
--- includeInString' _ str [] = str
--- includeInString' key str (incl:incls) = includeInString' key (includeInString key str incl) incls
+shuffleSources :: (Eq a) => Integer -> (a -> Integer) -> [[a]] -> [[a]]
+shuffleSources pkey shift srcs = mapChooseOrdered pkey shift (map addLength srcs)
 
--- getPassword :: Integer -> Integer -> String
--- getPassword key len = includeInString' key
---     (chooseOrdered key sourceString len)
---     [sourceNumbers, sourceSpecial]
+-- BONUS FUNCTIONS
 
--- main :: IO ()
--- main = do
---     args <- getArgs
---     -- sequence_ $ map putStrLn args
---     putStrLn $ getPassword (read (args !! 0)) 20
+getKeyFromString :: [Char] -> Integer
+getKeyFromString = product . (map $ toInteger . ord)
 
-main = putStrLn "it compiled!"
+shuffleString :: [Char] -> [Char]
+shuffleString str = chooseOrdered (getKeyFromString str) charShift (addLength str)
+
+main :: IO ()
+main = do
+    args <- getArgs
+    if (length args < 2) then return ()
+    else do
+        let
+            publicKey :: Integer
+            publicKey = getPublicKey $ args !! 0
+            privateKey :: Integer
+            privateKey = read $ args !! 1
+            sources = shuffleSources publicKey charShift defaultSources
+        putStrLn $ getHash privateKey charShift $ zip sources defaultAmounts
+
+
+-- main = putStrLn "it compiled!"
