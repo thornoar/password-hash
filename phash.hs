@@ -36,17 +36,11 @@ sourceNumbers = "1952074386"
 defaultPasswordLength :: Int
 defaultPasswordLength = 20
 
-numOfWays :: [(Integer, Integer)] -> Integer
-numOfWays pairs = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
--- numOfWays pairs = (product $ zipWith factorial' fsts snds)
-                -- * div (factorial (sum snds)) (product (map factorial snds))
-                -- * (product $ zipWith cnk (collect snds) snds)
+numberOfHashes :: [([a], Integer)] -> Integer
+numberOfHashes srcs = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
     where
-        fsts = map fst pairs
-        snds = map snd pairs
-
-shuffleInjectivityRange :: [[a]] -> Integer
-shuffleInjectivityRange lsts = product $ zipWith (^) [1..(toInteger $ length lsts)] (sortDesc $ map length lsts)
+        fsts = map (toInteger . length . fst) srcs
+        snds = map snd srcs
 
 -- parseKey :: Integer -> Integer -> (a -> Integer) -> (Integer, Integer)
 -- parseKey key n shift = (keyMod, keyDiv + keyMod + shift keyMod)
@@ -56,7 +50,7 @@ shuffleInjectivityRange lsts = product $ zipWith (^) [1..(toInteger $ length lst
 charShift :: Char -> Integer
 charShift c = (^5) $ toInteger $ ord c
 
--- Shuffling functions --
+-- Shuffling functions
 
 -- Choose an ordered sequence of `m` elements from the list `src`.
 chooseOrdered :: (Eq a) => Integer -> (a -> Integer) -> ([a], Integer) -> [a]
@@ -69,22 +63,31 @@ chooseOrdered key shift (src, m)  = curElt : chooseOrdered nextKey shift (filter
     curElt = src !! fromIntegral keyMod
     nextKey = keyDiv + keyMod + shift curElt
 
+-- on the segment from 0 to [this] the previous function is injective (in fact bijective)
+chooseInjectivityRange :: ([a], Integer) -> Integer
+chooseInjectivityRange (src, m) = factorial' (toInteger $ length src) m
+
 -- Mix a list of lists together, keeping the elements of the individual lists in order.
 shuffleLists :: Integer -> (a -> Integer) -> [[a]] -> [a]
 shuffleLists _ _ [] = []
-shuffleLists key shift lsts = curElt :
-        (shuffleLists nextKey shift $ (take curIndex lsts)
+shuffleLists key shift srcs = curElt :
+        (shuffleLists nextKey shift $ (take curIndex srcs)
         ++
         (if (1 < length curLst) then [tail curLst] else [])
         ++
-        (drop (curIndex + 1) lsts))
+        (drop (curIndex + 1) srcs))
     where
-    srcLength = toInteger $ length lsts
+    srcLength = toInteger $ length srcs
     (keyDiv, keyMod) = divMod key srcLength
     curIndex = fromIntegral keyMod
-    curLst = lsts !! fromIntegral curIndex
+    curLst = srcs !! fromIntegral curIndex
     curElt = head curLst
     nextKey = keyDiv + keyMod + shift curElt
+
+shuffleInjectivityRange :: [[a]] -> Integer
+shuffleInjectivityRange srcs = product $ zipWith (^) [1..(toInteger $ length srcs)] (sortDesc $ map length srcs)
+
+
 
 -- Convert a string to a public key by using base-128
 getPublicKey :: String -> Integer
