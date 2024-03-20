@@ -1,7 +1,6 @@
 import Data.Char (ord)
 import Data.List (sortBy)
-import System.Environment
-import Control.Monad
+import System.Environment (getArgs)
 
 -- GENERAL-PURPOSE FUNCTIONS
 
