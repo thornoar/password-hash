@@ -11,6 +11,7 @@
 
 \begin{document}
 
+
 \thispagestyle{empty}
 \vspace*{.6in}
 { \Huge\bfseries On rearrangement hashing with Haskell }\par
@@ -22,23 +23,47 @@
 \vspace*{.1in}
 \hrule
 \vspace*{.1in}
-\centering
 \begin{minipage}{0.9\textwidth}
-In this paper I introduce and develop a mathematical method of producing a cryptographic hash of adjustable length, given a public key and a private key. The hashing is done through encoding selections and permutations with natural numbers, and then composing the hash from a set of source strings with respect to the permutations encoded by the keys. The attempts to construct a suitable integer-to-selection mapping leads to interesting mathematical definitions and statements, which are discussed in this paper and applied to give bounds on the reliability of the hashing algorithm. An implementation is provided in the Haskell programming language (source available at \url{https://github.com/thornoar/password-hash}) and applied in the setting of password creation. In the paper, the details of the implementation are discussed, as well as the connections between it and the corresponding mathematical model.
+    In this paper I introduce and develop a mathematical method of producing a cryptographic hash of adjustable length, given a public key and a private key. The hashing is done through encoding selections and permutations with natural numbers, and then composing the hash from a set of source strings with respect to the permutations encoded by the keys. The attempts to construct a suitable integer-to-selection mapping leads to interesting mathematical definitions and statements, which are discussed in this paper and applied to give bounds on the reliability of the hashing algorithm. An implementation is provided in the Haskell programming language (source available at \url{https://github.com/thornoar/password-hash}) and applied in the setting of password creation. In the paper, the details of the implementation are discussed, as well as the connections between it and the corresponding mathematical model.
 \end{minipage}
 \vspace*{.1in}
 \hrule
 \vspace*{.2in}
-\includegraphics[width = 1in]{./figures/haskell.png}
-\vfill
-\today
+\begin{center}
+    \includegraphics[width = 1in]{./figures/haskell.png}
+    \vfill
+    \today
+\end{center}
 
 \newpage
 \tableofcontents
 \newpage
 
+\section{Introduction}
 
-titlepage
+The motivation behind the topic lies in the management of personal passwords. Nowadays, the average person requires tens of different passwords for different websites and services. Overall, one can distinguish between two ways of managing this set of passwords:
+
+\begin{enumerate}
+    \item \textbf{Keeping everything in one's head.} This is a method employed by many, yet it inevitably leads to certain risks. First of all, in order to fit the passwords in memory, one will probably make them similar to each other, or at least have them follow a simple pattern like "[shortened name of website]+[fixed phrase]". As a result, if even one password is guessed or leaked, it will be almost trivial to retrieve most of the others, following the pattern. Furthermore, the passwords themselves will tend to be memorable and connected to one's personal life, which will make them easier to guess. There is, after all, a limit to one's imagination.
+    \item \textbf{Storing the passwords in a secure location.} Arguably, this is a better method, but there is a natural risk of this location being revealed, or of the passwords being lost, especially if they are stored physically on a piece of paper. Currently, various "password managers" are available, which are software programs that will create and store your passwords for you. It is usually unclear, however, how this software works and whether it can be trusted with one's potentially very sensitive passwords. After all, guessing the password to the password manager is enough to have all the other passwords exposed.
+\end{enumerate}
+
+In this paper I suggest a way of doing neither of these things. The user will not know the passwords or have any connection to them whatsoever, and at the same time the passwords will not be stored anywhere, physically or digitally. In this system, every password is a cryptographic hash produced by a fixed hashing algorithm. The algorithm requires two inputs: the public key, i.e. the name of the website or service, and the private key, which is an arbitrary positive integer known only to the user. Every time when retrieving a password, the user will use the keys to re-create it from scratch. Therefore, in order to be reliable, the algorithm must be "pure", i.e. must always return the same output given the same input. Additionally, the algorithm must be robust enough so that, even if a hacker had full access to it and its working, they would still not be able to guess the user's private key or the passwords that it produces. These considerations naturally lead to exploring pure mathematical functions as hashing algorithms and implementing them in a functional programming language such as Haskell.
+
+\section{The theory}
+
+There are many ways to generate hash strings. In our case, these strings are potential passwords, meaning they should contain lower-case and upper-case letters, as well as numbers and special characters. Instead of somehow deriving such symbol sequences directly from the public and private keys, we will be creating the strings by selecting them from a pre-defined set of distinct elements (i.e. the English alphabet or the digits from 0 to 9) and rearranging them. The keys will play a role in determining the rearrangement scheme. With regard to this strategy, some preliminary definitions are in order.
+
+\subsection{Preliminary terminology}
+
+Symbols $ A $, $ B $, $ C $ will denote arbitrary sets. $ \N $ is the set of all positive integers.
+
+By $ E $ (and, similarly, $ E_1 $, $ E_2 $, $ E_3 $, etc.) we will denote a \emph{finite} set of distinct elements. When multiple sets $ E_1 $, $ E_2 $, ..., $ E_N $ are considered, we take none of them to share any elements between each other. In other words, their pair-wise intersections will be assumed to be empty.
+
+The expression $ [E] $ will denote the set of all \emph{ordered} lists composed from elements of $ E $. The subset $ [E]_m \subset [E] $ will include only the lists of length $ m $. Extending the notation, by $ [E_1, E_2, ..., E_N] $ we will denote the set of lists of length $ N $ where the first element is from $ E_1 $, the second from $ E_2 $, and so on and so forth.
+
+\subsection{Naive approach}
+
 
 
 \end{document}
