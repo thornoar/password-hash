@@ -60,6 +60,9 @@ defaultSources = [sourceUpper, sourceLower, sourceSpecial, sourceNumbers]
 defaultAmounts :: [Integer]
 defaultAmounts = [6, 6, 4, 4]
 
+defaultConfiguration :: [([Char], Integer)]
+defaultConfiguration = zip defaultSources defaultAmounts
+
 -- HASH GENERATING FUNCTIONS
 
 -- Choose an ordered sequence of `m` elements from the list `src`.
@@ -137,7 +140,7 @@ numberOfHashes srcs = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
 -- Public string must be maximum 32 characters in length to insure injectivity
 
 -- Convert a string to a public key by using the base-128 number system.
-getPublicKey :: [Char] -> Integer
+getPublicKey :: String -> Integer
 getPublicKey "" = 0
 getPublicKey (c:cs) = (toInteger $ ord c) * (128 ^ (length cs)) + getPublicKey cs
 
@@ -147,51 +150,55 @@ shuffleSources pkey srcs = mapChooseOrdered pkey (map addLength srcs)
 
 -- BONUS FUNCTIONS
 
-getKeyFromString :: [Char] -> Integer
+getKeyFromString :: String -> Integer
 getKeyFromString = product . (map $ toInteger . ord)
 
-shuffleString :: [Char] -> [Char]
+shuffleString :: String -> String
 shuffleString str = chooseOrdered (getKeyFromString str) (addLength str)
 
 -- USER INTERFACE
 
+-- Prints help information
+helpAction :: String -> [(Integer, Integer)] -> IO ()
+helpAction cmd srcs = case cmd of
+    "#help" -> do
+        putStrLn "usage: phash [#COMMAND [CONFIGURATION] | PUBLIC PRIVATE [CONFIGURATION]]"
+        putStrLn ""
+        putStrLn "commands:"
+        putStrLn "  #help                       show this help message and exit"
+        putStrLn "  #hashes [CONFIGURATION]     print the theoretical number of hashes with given configuration"
+        putStrLn "  #keys [CONFIGURATION]       print the lower range of significant keys in given configuration"
+        putStrLn "  #choices [CONFIGURATION]    print the number of character selections with given configuration"
+        putStrLn "  #shuffles [CONFIGURATION]   print the number of selection shufflings with given configuration"
+        putStrLn $ "                          (with no CONFIGURATION, commands use " ++ (show defaultConfiguration)
+    "#hashes" -> (putStrLn . show) $ numberOfHashes srcs
+    "#keys" -> (putStrLn . show) $ getHashInjectivityRange srcs
+    "#choices" -> (putStrLn . show) $ mapChooseInjectivityRange srcs
+    "#shuffles" -> (putStrLn . show) $ shuffleInjectivityRange $ map snd $ srcs
+    _ -> putStrLn "error: help command not recognized"
+
+-- Prints the hash (password) given public and private strings and a hash configuration
+hashAction :: String -> String -> [([Char], Integer)] -> IO ()
+hashAction publicStr privateStr config = putStrLn $ getHash privateKey shuffledConfig
+    where
+    publicKey :: Integer
+    publicKey = getPublicKey publicStr
+    privateKey :: Integer
+    privateKey = read $ privateStr
+    sources = map fst config
+    amounts = map snd config
+    shuffledConfig = zip (shuffleSources publicKey sources) amounts
+
+-- The main process
 main :: IO ()
 main = do
     args <- getArgs
     case (length args) of
         0 -> return ()
         1 ->
-            let fullSources = zip defaultSources defaultAmounts in
-            case (args !! 0) of
-            "#hashes" -> (putStrLn . show) $ numberOfHashes $ map dropElementInfo $ fullSources
-            "#keys" -> (putStrLn . show) $ getHashInjectivityRange $ map dropElementInfo $ fullSources
-            "#choices" -> (putStrLn . show) $ mapChooseInjectivityRange $ map dropElementInfo $ fullSources
-            "#shuffles" -> (putStrLn . show) $ shuffleInjectivityRange $ map snd $ fullSources
-            _ -> return ()
-        2 -> 
-            let
-                publicKey :: Integer
-                publicKey = getPublicKey $ args !! 0
-                privateKey :: Integer
-                privateKey = read $ args !! 1
-                sources = shuffleSources publicKey defaultSources
-            in putStrLn $ getHash privateKey $ zip sources defaultAmounts
-        _ -> putStrLn "too many arguments"
-    -- if (0 < length args) then
-    --     if (1 == length args) then
-    --         let fullSources = zip defaultSources defaultAmounts in
-    --         case (args !! 0) of
-    --         "#hashes" -> (putStrLn . show) $ numberOfHashes $ map dropElementInfo $ fullSources
-    --         "#keys" -> (putStrLn . show) $ getHashInjectivityRange $ map dropElementInfo $ fullSources
-    --         _ -> return ()
-    --     else do
-    --         let
-    --             publicKey :: Integer
-    --             publicKey = getPublicKey $ args !! 0
-    --             privateKey :: Integer
-    --             privateKey = read $ args !! 1
-    --             sources = shuffleSources publicKey defaultSources
-    --         putStrLn $ getHash privateKey $ zip sources defaultAmounts
-    -- else return ()
-
--- main = putStrLn "it compiled!"
+            let fullSources = map dropElementInfo defaultConfiguration in
+            helpAction (args !! 0) fullSources
+        2 -> case (args !! 0) of
+            '#':cmd -> helpAction (args !! 0) $ read (args !! 1)
+            _ -> hashAction (args !! 0) (args !! 1) defaultConfiguration
+        3 -> hashAction (args !! 0) (args !! 1) (read $ args !! 2)
