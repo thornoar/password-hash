@@ -173,7 +173,7 @@ main = do
         1 -> let fullSources = map dropElementInfo defaultConfiguration in helpAction (args !! 0) fullSources
         2 -> case (args !! 0) of
             '#':cmd -> helpAction (args !! 0) $ read (args !! 1)
-            '>':cmd -> commandAction (args !! 0) (args !! 1)
+            '@':cmd -> commandAction (args !! 0) (args !! 1)
             _ -> hashAction (args !! 0) (args !! 1) defaultConfiguration
         3 -> hashAction (args !! 0) (args !! 1) (read $ args !! 2)
         _ -> putStrLn "error: too many arguments"
@@ -201,8 +201,8 @@ helpAction cmd amts = case cmd of
 
 commandAction :: String -> String -> IO ()
 commandAction cmd str = case cmd of
-    ">shuffle" -> putStrLn $ shuffleString str
-    ">select" -> putStrLn $ chooseOrdered (getKeyFromString str) (src, m)
+    "@shuffle" -> putStrLn $ shuffleString str
+    "@select" -> putStrLn $ chooseOrdered (getKeyFromString str) (src, m)
         where
         pair :: (String, Integer)
         pair = read str
