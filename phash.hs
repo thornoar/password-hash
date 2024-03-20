@@ -31,6 +31,15 @@ dropElementInfo (src, m) = (toInteger $ length src, m)
 addLength :: [a] -> ([a], Integer)
 addLength lst = (lst, toInteger $ length lst)
 
+-- A typeclass that defines how elements act on integers for shifting the key in recursive calls
+class Shifting a where
+    shift :: a -> Integer
+
+-- Characters shift keys by their ACSII values, amplified
+instance Shifting Char where
+    shift :: Char -> Integer
+    shift c = shiftAmplifier $ toInteger $ ord c
+
 -- PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN
 
 sourceUpper :: [Char]
@@ -54,10 +63,10 @@ defaultAmounts = [6, 6, 4, 4]
 -- HASH GENERATING FUNCTIONS
 
 -- Choose an ordered sequence of `m` elements from the list `src`.
-chooseOrdered :: (Eq a) => Integer -> (a -> Integer) -> ([a], Integer) -> [a]
-chooseOrdered _ _ (_, 0) = []
-chooseOrdered _ _ ([], _) = []
-chooseOrdered key shift (src, m)  = curElt : chooseOrdered nextKey shift (filter (\e -> e /= curElt) src, m-1)
+chooseOrdered :: (Eq a, Shifting a) => Integer -> ([a], Integer) -> [a]
+chooseOrdered _ (_, 0) = []
+chooseOrdered _ ([], _) = []
+chooseOrdered key (src, m)  = curElt : chooseOrdered nextKey (filter (\e -> e /= curElt) src, m-1)
     where
     srcLength = toInteger $ length src
     (keyDiv, keyMod) = divMod key srcLength
@@ -69,13 +78,13 @@ chooseInjectivityRange :: (Integer, Integer) -> Integer
 chooseInjectivityRange pair = factorial' (fst pair) (snd pair)
 
 -- Apply the `chooseOrdered` function to a list, modifying the key every time
-mapChooseOrdered :: (Eq a) => Integer -> (a -> Integer) -> [([a], Integer)] -> [[a]]
-mapChooseOrdered _ _ [] = []
-mapChooseOrdered key shift srcs = curSelection : mapChooseOrdered nextKey shift (tail srcs)
+mapChooseOrdered :: (Eq a, Shifting a) => Integer -> [([a], Integer)] -> [[a]]
+mapChooseOrdered _ [] = []
+mapChooseOrdered key srcs = curSelection : mapChooseOrdered nextKey (tail srcs)
     where
     curSrc = head srcs
     (keyDiv, keyMod) = divMod key $ chooseInjectivityRange $ dropElementInfo curSrc
-    curSelection = chooseOrdered keyMod shift curSrc
+    curSelection = chooseOrdered keyMod curSrc
     keyShift = shiftAmplifier $ (sum . map shift) curSelection
     nextKey = keyDiv + keyMod + keyShift
 
@@ -84,12 +93,14 @@ mapChooseInjectivityRange :: [(Integer, Integer)] -> Integer
 mapChooseInjectivityRange = product . (map chooseInjectivityRange)
 
 -- Mix a list of lists together, keeping the elements of the individual lists in order.
-shuffleLists :: (Eq a) => Integer -> (a -> Integer) -> [[a]] -> [a]
-shuffleLists _ _ [] = []
-shuffleLists key shift srcs = curElt :
-    (shuffleLists nextKey shift $ (take curIndex srcs)
-    ++ (if (1 < length curLst) then [tail curLst] else [])
-    ++ (drop (curIndex + 1) srcs))
+shuffleLists :: (Eq a, Shifting a) => Integer -> [[a]] -> [a]
+shuffleLists _ [] = []
+shuffleLists key srcs = (:) curElt $ shuffleLists nextKey $
+    (take curIndex srcs)
+    ++
+    (if (1 < length curLst) then [tail curLst] else [])
+    ++
+    (drop (curIndex + 1) srcs)
     where
     srcLength = toInteger $ length srcs
     (keyDiv, keyMod) = divMod key srcLength
@@ -103,11 +114,11 @@ shuffleInjectivityRange :: [Integer] -> Integer
 shuffleInjectivityRange srcs = product $ zipWith (^) [1 .. (toInteger $ length srcs)] (sortDesc srcs)
 
 -- Get a hash sequence from key, shift function and source list
-getHash :: (Eq a) => Integer -> (a -> Integer) -> [([a], Integer)] -> [a]
-getHash key shift srcs = shuffleLists nextKey shift hashSelections
+getHash :: (Eq a, Shifting a) => Integer -> [([a], Integer)] -> [a]
+getHash key srcs = shuffleLists nextKey hashSelections
     where
     (keyDiv, keyMod) = divMod key $ mapChooseInjectivityRange $ map dropElementInfo srcs
-    hashSelections = mapChooseOrdered keyMod shift srcs
+    hashSelections = mapChooseOrdered keyMod srcs
     keyShift = shiftAmplifier $ (sum . map (product . map shift)) hashSelections
     nextKey = keyDiv + keyMod + keyShift
 
@@ -123,15 +134,15 @@ numberOfHashes srcs = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
     snds = map snd srcs
 
 -- MANAGING THE PUBLIC KEY
--- string must be maximum 32 characters in length to insure injectivity
+-- Public string must be maximum 32 characters in length to insure injectivity
 
 -- Convert a string to a public key by using the base-128 number system.
 getPublicKey :: [Char] -> Integer
 getPublicKey "" = 0
 getPublicKey (c:cs) = (toInteger $ ord c) * (128 ^ (length cs)) + getPublicKey cs
 
-shuffleSources :: (Eq a) => Integer -> (a -> Integer) -> [[a]] -> [[a]]
-shuffleSources pkey shift srcs = mapChooseOrdered pkey shift (map addLength srcs)
+shuffleSources :: (Eq a, Shifting a) => Integer -> [[a]] -> [[a]]
+shuffleSources pkey srcs = mapChooseOrdered pkey (map addLength srcs)
 
 -- BONUS FUNCTIONS
 
@@ -139,7 +150,9 @@ getKeyFromString :: [Char] -> Integer
 getKeyFromString = product . (map $ toInteger . ord)
 
 shuffleString :: [Char] -> [Char]
-shuffleString str = chooseOrdered (getKeyFromString str) charShift (addLength str)
+shuffleString str = chooseOrdered (getKeyFromString str) (addLength str)
+
+-- USER INTERFACE
 
 main :: IO ()
 main = do
@@ -151,8 +164,7 @@ main = do
             publicKey = getPublicKey $ args !! 0
             privateKey :: Integer
             privateKey = read $ args !! 1
-            sources = shuffleSources publicKey charShift defaultSources
-        putStrLn $ getHash privateKey charShift $ zip sources defaultAmounts
-
+            sources = shuffleSources publicKey defaultSources
+        putStrLn $ getHash privateKey $ zip sources defaultAmounts
 
 -- main = putStrLn "it compiled!"
