@@ -23,10 +23,6 @@ cnk n k
     | otherwise = (cnk (n-1) (k-1)) + (cnk (n-1) k)
 -- cnk n k = div (factorial' n k) (factorial k)
 
-shiftAmplifier :: Integer -> Integer
--- shiftAmplifier = (^5)
-shiftAmplifier = id
-
 dropElementInfo :: ([a], Integer) -> (Integer, Integer)
 dropElementInfo (src, m) = (toInteger $ length src, m)
 
@@ -36,9 +32,6 @@ addLength lst = (lst, toInteger $ length lst)
 nsInYear :: Double
 nsInYear = 3.15576E16
 
--- lowerSqrt :: Integer -> Integer
--- lowerSqrt = (+ (-1)) . floor . sqrt . fromIntegral
-
 -- A typeclass that defines how elements act on integers for shifting the key in recursive calls
 class Shifting a where
     shift :: a -> Integer
@@ -46,7 +39,7 @@ class Shifting a where
 -- Characters shift keys by their ACSII values, amplified
 instance Shifting Char where
     shift :: Char -> Integer
-    shift c = shiftAmplifier $ toInteger $ ord c
+    shift c = toInteger $ ord c
 
 ---------------------------------------------------------
 -- | PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN |
@@ -94,7 +87,7 @@ mapChooseOrdered key config = curSelection : mapChooseOrdered nextKey (tail conf
     curSrc = head config
     (keyDiv, keyMod) = divMod key $ chooseInjectivityRange $ dropElementInfo curSrc
     curSelection = chooseOrdered keyMod curSrc
-    keyShift = shiftAmplifier $ (sum . map shift) curSelection
+    keyShift = (sum . map shift) curSelection
     nextKey = keyDiv + keyShift
 
 -- On the integer segment from 0 to [this] the previous function is injective (in fact bijective)
@@ -128,7 +121,7 @@ getHash key config = shuffleLists nextKey hashSelections
     where
     (keyDiv, keyMod) = divMod key $ mapChooseInjectivityRange $ map dropElementInfo config
     hashSelections = mapChooseOrdered keyMod config
-    keyShift = shiftAmplifier $ (sum . map (product . map shift)) hashSelections
+    keyShift = (sum . map (sum . map shift)) hashSelections
     nextKey = keyDiv + keyShift
 
 -- All keys between 0 and [this] are guaranteed to give different hashes
