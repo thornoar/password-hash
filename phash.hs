@@ -141,6 +141,7 @@ getPublicKey :: [Char] -> Integer
 getPublicKey "" = 0
 getPublicKey (c:cs) = (toInteger $ ord c) * (128 ^ (length cs)) + getPublicKey cs
 
+-- Apply public key to shuffle sources
 shuffleSources :: (Eq a, Shifting a) => Integer -> [[a]] -> [[a]]
 shuffleSources pkey srcs = mapChooseOrdered pkey (map addLength srcs)
 
@@ -157,14 +158,40 @@ shuffleString str = chooseOrdered (getKeyFromString str) (addLength str)
 main :: IO ()
 main = do
     args <- getArgs
-    if (length args < 2) then return ()
-    else do
-        let
-            publicKey :: Integer
-            publicKey = getPublicKey $ args !! 0
-            privateKey :: Integer
-            privateKey = read $ args !! 1
-            sources = shuffleSources publicKey defaultSources
-        putStrLn $ getHash privateKey $ zip sources defaultAmounts
+    case (length args) of
+        0 -> return ()
+        1 ->
+            let fullSources = zip defaultSources defaultAmounts in
+            case (args !! 0) of
+            "#hashes" -> (putStrLn . show) $ numberOfHashes $ map dropElementInfo $ fullSources
+            "#keys" -> (putStrLn . show) $ getHashInjectivityRange $ map dropElementInfo $ fullSources
+            "#choices" -> (putStrLn . show) $ mapChooseInjectivityRange $ map dropElementInfo $ fullSources
+            "#shuffles" -> (putStrLn . show) $ shuffleInjectivityRange $ map snd $ fullSources
+            _ -> return ()
+        2 -> 
+            let
+                publicKey :: Integer
+                publicKey = getPublicKey $ args !! 0
+                privateKey :: Integer
+                privateKey = read $ args !! 1
+                sources = shuffleSources publicKey defaultSources
+            in putStrLn $ getHash privateKey $ zip sources defaultAmounts
+        _ -> putStrLn "too many arguments"
+    -- if (0 < length args) then
+    --     if (1 == length args) then
+    --         let fullSources = zip defaultSources defaultAmounts in
+    --         case (args !! 0) of
+    --         "#hashes" -> (putStrLn . show) $ numberOfHashes $ map dropElementInfo $ fullSources
+    --         "#keys" -> (putStrLn . show) $ getHashInjectivityRange $ map dropElementInfo $ fullSources
+    --         _ -> return ()
+    --     else do
+    --         let
+    --             publicKey :: Integer
+    --             publicKey = getPublicKey $ args !! 0
+    --             privateKey :: Integer
+    --             privateKey = read $ args !! 1
+    --             sources = shuffleSources publicKey defaultSources
+    --         putStrLn $ getHash privateKey $ zip sources defaultAmounts
+    -- else return ()
 
 -- main = putStrLn "it compiled!"
