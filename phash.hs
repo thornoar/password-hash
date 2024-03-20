@@ -59,8 +59,7 @@ sourceLower :: [Char]
 sourceLower = "ckapzfitqdxnwehrolmbyvsujg"
 
 sourceSpecial :: [Char]
--- sourceSpecial = "!?%&|#-$+@=*"
-sourceSpecial = "~!@#$%^&*()_-+={[}]|:;'<,>.?/"
+sourceSpecial = "!@#$%^&*()_-+={[}]|:;<,>?"
 
 sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
