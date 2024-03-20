@@ -1,0 +1,44 @@
+\documentclass[12pt, a4paper]{article}
+\input{preamble}
+
+\makeatletter
+\let\ps@plain\ps@empty
+\makeatletter
+
+\geometry{top = 1in, bottom = 1in, left = 1in, right = 1in}
+
+\usepackage{tempora}
+
+\begin{document}
+
+\thispagestyle{empty}
+\vspace*{.6in}
+{ \Huge\bfseries On rearrangement hashing with Haskell }\par
+\vspace*{.1in}
+{ \Large Roman Maksimovich }
+\par
+\vspace*{2in}
+{ \Large\bfseries Abstract }\par
+\vspace*{.1in}
+\hrule
+\vspace*{.1in}
+\centering
+\begin{minipage}{0.9\textwidth}
+In this paper I introduce and develop a mathematical method of producing a cryptographic hash of adjustable length, given a public key and a private key. The hashing is done through encoding selections and permutations with natural numbers, and then composing the hash from a set of source strings with respect to the permutations encoded by the keys. The attempts to construct a suitable integer-to-selection mapping leads to interesting mathematical definitions and statements, which are discussed in this paper and applied to give bounds on the reliability of the hashing algorithm. An implementation is provided in the Haskell programming language (source available at \url{https://github.com/thornoar/password-hash}) and applied in the setting of password creation. In the paper, the details of the implementation are discussed, as well as the connections between it and the corresponding mathematical model.
+\end{minipage}
+\vspace*{.1in}
+\hrule
+\vspace*{.2in}
+\includegraphics[width = 1in]{./figures/haskell.png}
+\vfill
+\today
+
+\newpage
+\tableofcontents
+\newpage
+
+
+titlepage
+
+
+\end{document}
