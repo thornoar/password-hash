@@ -33,6 +33,9 @@ dropElementInfo (src, m) = (toInteger $ length src, m)
 addLength :: [a] -> ([a], Integer)
 addLength lst = (lst, toInteger $ length lst)
 
+nsInYear :: Double
+nsInYear = 3.15576E16
+
 -- lowerSqrt :: Integer -> Integer
 -- lowerSqrt = (+ (-1)) . floor . sqrt . fromIntegral
 
@@ -157,6 +160,10 @@ numberOfHashes amts = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
     fsts = map fst amts
     snds = map snd amts
     
+-- Approximately [this] many keys will produce the same hash
+numberOfRepetitions :: [Integer] -> Integer
+numberOfRepetitions = shuffleInjectivityRange
+
 -- Number of private keys that are guaranteed to produce distinct hashes
 numberOfPrivateKeys :: [(Integer, Integer)] -> Integer
 numberOfPrivateKeys = mapChooseInjectivityRange
@@ -165,21 +172,9 @@ numberOfPrivateKeys = mapChooseInjectivityRange
 numberOfPublicKeys :: [Integer] -> Integer
 numberOfPublicKeys lens = mapChooseInjectivityRange $ zip lens lens
 
----------------------
--- | BONUS FUNCTIONS |
----------------------
-
-getKeyFromString :: String -> Integer
-getKeyFromString = product . (map $ toInteger . ord)
-
-shuffleString :: String -> String
-shuffleString str = chooseOrdered (getKeyFromString str) (addLength str)
-
 --------------------
 -- | USER INTERFACE |
 --------------------
-
--- TODO: time to crack help functions
 
 -- Prints help information
 helpAction :: String -> [(Integer, Integer)] -> IO ()
@@ -197,26 +192,18 @@ helpAction cmd amts = case cmd of
         putStrLn "default configuration:"
         putStrLn $ "  " ++ (show defaultConfiguration)
     "#hashes" -> do
-        putStrLn $ "Total number of hashes is " ++ (show $ numberOfHashes amts)
-        putStrLn $ "Hashing is injective on the first " ++ (show $ getHashInjectivityRange amts) ++ " numbers"
+        putStrLn $ "total theoretical number of hashes:     " ++ (show $ numberOfHashes amts)
+        putStrLn $ "range of guaranteed hash injectivity:   " ++ (show $ getHashInjectivityRange amts)
     "#keys" -> do
-        putStrLn $ "The number of relevant private keys is more than " ++ (show $ getHashInjectivityRange amts)
-        putStrLn $ "Exactly " ++ (show $ mapChooseInjectivityRange amts) ++ " keys give distinct hashes."
-        putStrLn $ "More than " ++ (show $ mapChooseInjectivityRange amts) ++ " keys give the same hash."
-    "#choices" -> (putStrLn . show) $ mapChooseInjectivityRange amts
-    "#shuffles" -> (putStrLn . show) $ shuffleInjectivityRange $ map snd $ amts
+        putStrLn $ "number of relevant private keys:       >" ++ (show $ getHashInjectivityRange amts)
+        putStrLn $ "number of keys with different hashes:   " ++ (show $ numberOfPrivateKeys amts)
+        putStrLn $ "number of keys with the same hash:     >" ++ (show $ numberOfRepetitions $ map snd amts)
+    "#times" -> do
+        putStrLn $ "assumed time to check one private key:  " ++ "1 nanosecond = 10^(-9) s"
+        putStrLn $ "time required to brute-force your key:  " ++
+            (show $ floor $ (fromIntegral $ numberOfPrivateKeys amts) / nsInYear) ++ " years"
+        putStrLn $ "given the final hash, it is impossible to deduce the private key without brute-forcing."
     _ -> putStrLn "error: help command not recognized"
-
-commandAction :: String -> String -> IO ()
-commandAction cmd str = case cmd of
-    "@shuffle" -> putStrLn $ shuffleString str
-    "@select" -> putStrLn $ chooseOrdered (getKeyFromString str) (src, m)
-        where
-        pair :: (String, Integer)
-        pair = read str
-        src = fst pair
-        m = snd pair
-    _ -> putStrLn "error: command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration
 hashAction :: String -> String -> [([Char], Integer)] -> IO ()
@@ -228,10 +215,8 @@ hashAction publicStr privateStr config = putStrLn $ getHash privateKey2 shuffled
     privateBase = read $ privateStr
     sources = map fst config
     amounts = map snd config
-    (privateKey1, privateKey2) = divMod privateBase $ shuffleInjectivityRange amounts
+    (privateKey1, privateKey2) = divMod privateBase $ numberOfRepetitions amounts
     shuffledConfig = zip (shuffleSources publicKey $ shuffleSources privateKey1 sources) amounts
-    -- range = getHashInjectivityRange (map dropElementInfo config)
-    -- shuffledSources = shuffleSources publicKey $ shuffleSources privateKey1 $ map fst config
 
 -- The main process
 main :: IO ()
@@ -239,10 +224,9 @@ main = do
     args <- getArgs
     case (length args) of
         0 -> helpAction "#help" []
-        1 -> let fullSources = map dropElementInfo defaultConfiguration in helpAction (args !! 0) fullSources
+        1 -> helpAction (args !! 0) (map dropElementInfo defaultConfiguration)
         2 -> case (args !! 0) of
             '#':cmd -> helpAction (args !! 0) $ read (args !! 1)
-            '@':cmd -> commandAction (args !! 0) (args !! 1)
             _ -> hashAction (args !! 0) (args !! 1) defaultConfiguration
         3 -> hashAction (args !! 0) (args !! 1) (read $ args !! 2)
         _ -> putStrLn "error: too many arguments"
