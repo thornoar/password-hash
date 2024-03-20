@@ -59,14 +59,8 @@ sourceSpecial = "!?%&|#-$+@=*"
 sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
 
-defaultSources :: [[Char]]
-defaultSources = [sourceUpper, sourceLower, sourceSpecial, sourceNumbers]
-
-defaultAmounts :: [Integer]
-defaultAmounts = [6, 6, 4, 4]
-
 defaultConfiguration :: [([Char], Integer)]
-defaultConfiguration = zip defaultSources defaultAmounts
+defaultConfiguration = [(sourceUpper, 6), (sourceLower, 6), (sourceSpecial, 4), (sourceNumbers, 4)]
 
 -- HASH GENERATING FUNCTIONS
 
