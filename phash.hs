@@ -160,9 +160,9 @@ shuffleString str = chooseOrdered (getKeyFromString str) (addLength str)
 
 -- Prints help information
 helpAction :: String -> [(Integer, Integer)] -> IO ()
-helpAction cmd srcs = case cmd of
+helpAction cmd amts = case cmd of
     "#help" -> do
-        putStrLn "usage: phash [#COMMAND [CONFIGURATION] | PUBLIC PRIVATE [CONFIGURATION]]"
+        putStrLn "usage: phash [#COMMAND [CONFIGURATION] | >COMMAND ARGUMENT | PUBLIC PRIVATE [CONFIGURATION]]"
         putStrLn ""
         putStrLn "commands:"
         putStrLn "  #help                       show this help message and exit"
@@ -170,12 +170,25 @@ helpAction cmd srcs = case cmd of
         putStrLn "  #keys [CONFIGURATION]       print the lower range of significant keys in given configuration"
         putStrLn "  #choices [CONFIGURATION]    print the number of character selections with given configuration"
         putStrLn "  #shuffles [CONFIGURATION]   print the number of selection shufflings with given configuration"
-        putStrLn $ "                          (with no CONFIGURATION, commands use " ++ (show defaultConfiguration)
-    "#hashes" -> (putStrLn . show) $ numberOfHashes srcs
-    "#keys" -> (putStrLn . show) $ getHashInjectivityRange srcs
-    "#choices" -> (putStrLn . show) $ mapChooseInjectivityRange srcs
-    "#shuffles" -> (putStrLn . show) $ shuffleInjectivityRange $ map snd $ srcs
+        putStrLn ""
+        putStrLn "default configuration:"
+        putStrLn $ "  " ++ (show defaultConfiguration)
+    "#hashes" -> (putStrLn . show) $ numberOfHashes amts
+    "#keys" -> (putStrLn . show) $ getHashInjectivityRange amts
+    "#choices" -> (putStrLn . show) $ mapChooseInjectivityRange amts
+    "#shuffles" -> (putStrLn . show) $ shuffleInjectivityRange $ map snd $ amts
     _ -> putStrLn "error: help command not recognized"
+
+commandAction :: String -> String -> IO ()
+commandAction cmd str = case cmd of
+    ">shuffle" -> putStrLn $ shuffleString str
+    ">select" -> putStrLn $ chooseOrdered (getKeyFromString str) (src, m)
+        where
+        pair :: (String, Integer)
+        pair = read str
+        src = fst pair
+        m = snd pair
+    _ -> putStrLn "error: command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration
 hashAction :: String -> String -> [([Char], Integer)] -> IO ()
@@ -194,11 +207,11 @@ main :: IO ()
 main = do
     args <- getArgs
     case (length args) of
-        0 -> return ()
-        1 ->
-            let fullSources = map dropElementInfo defaultConfiguration in
-            helpAction (args !! 0) fullSources
+        0 -> helpAction "#help" []
+        1 -> let fullSources = map dropElementInfo defaultConfiguration in helpAction (args !! 0) fullSources
         2 -> case (args !! 0) of
             '#':cmd -> helpAction (args !! 0) $ read (args !! 1)
+            '>':cmd -> commandAction (args !! 0) (args !! 1)
             _ -> hashAction (args !! 0) (args !! 1) defaultConfiguration
         3 -> hashAction (args !! 0) (args !! 1) (read $ args !! 2)
+        _ -> putStrLn "error: too many arguments"
