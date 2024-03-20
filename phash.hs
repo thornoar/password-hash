@@ -14,7 +14,13 @@ factorial' n 1 = n
 factorial' n m = (n - (m - 1)) * factorial' n (m - 1)
 
 cnk :: Integer -> Integer -> Integer
-cnk n k = div (factorial' n k) (factorial k)
+cnk n k
+    | k < 0 = 0
+    | k == 0 = 1
+    | k == n = 1
+    | k > n = 0
+    | otherwise = (cnk (n-1) (k-1)) + (cnk (n-1) k)
+-- cnk n k = div (factorial' n k) (factorial k)
 
 sortDesc :: (Ord a) => [a] -> [a]
 sortDesc = sortBy (flip compare)
@@ -22,14 +28,14 @@ sortDesc = sortBy (flip compare)
 shiftAmplifier :: Integer -> Integer
 shiftAmplifier = (^5)
 
-charShift :: Char -> Integer
-charShift c = shiftAmplifier $ toInteger $ ord c
-
 dropElementInfo :: ([a], Integer) -> (Integer, Integer)
 dropElementInfo (src, m) = (toInteger $ length src, m)
 
 addLength :: [a] -> ([a], Integer)
 addLength lst = (lst, toInteger $ length lst)
+
+toAmounts :: [a] -> (Integer, Integer)
+toAmounts = dropElementInfo . addLength
 
 -- A typeclass that defines how elements act on integers for shifting the key in recursive calls
 class Shifting a where
@@ -78,14 +84,14 @@ chooseOrdered key (src, m)  = curElt : chooseOrdered nextKey (filter (\e -> e /=
 
 -- On the integer segment from 0 to [this] the previous function is injective (in fact bijective)
 chooseInjectivityRange :: (Integer, Integer) -> Integer
-chooseInjectivityRange pair = factorial' (fst pair) (snd pair)
+chooseInjectivityRange amt = factorial' (fst amt) (snd amt)
 
 -- Apply the `chooseOrdered` function to a list, modifying the key every time
 mapChooseOrdered :: (Eq a, Shifting a) => Integer -> [([a], Integer)] -> [[a]]
 mapChooseOrdered _ [] = []
-mapChooseOrdered key srcs = curSelection : mapChooseOrdered nextKey (tail srcs)
+mapChooseOrdered key config = curSelection : mapChooseOrdered nextKey (tail config)
     where
-    curSrc = head srcs
+    curSrc = head config
     (keyDiv, keyMod) = divMod key $ chooseInjectivityRange $ dropElementInfo curSrc
     curSelection = chooseOrdered keyMod curSrc
     keyShift = shiftAmplifier $ (sum . map shift) curSelection
@@ -118,23 +124,23 @@ shuffleInjectivityRange srcs = product $ zipWith (^) [1 .. (toInteger $ length s
 
 -- Get a hash sequence from key, shift function and source list
 getHash :: (Eq a, Shifting a) => Integer -> [([a], Integer)] -> [a]
-getHash key srcs = shuffleLists nextKey hashSelections
+getHash key config = shuffleLists nextKey hashSelections
     where
-    (keyDiv, keyMod) = divMod key $ mapChooseInjectivityRange $ map dropElementInfo srcs
-    hashSelections = mapChooseOrdered keyMod srcs
+    (keyDiv, keyMod) = divMod key $ mapChooseInjectivityRange $ map dropElementInfo config
+    hashSelections = mapChooseOrdered keyMod config
     keyShift = shiftAmplifier $ (sum . map (product . map shift)) hashSelections
     nextKey = keyDiv + keyMod + keyShift
 
 -- All keys between 0 and [this] are guaranteed to give different hashes
 getHashInjectivityRange :: [(Integer, Integer)] -> Integer
-getHashInjectivityRange pairs = (mapChooseInjectivityRange pairs) * (shuffleInjectivityRange $ map snd pairs)
+getHashInjectivityRange amts = (mapChooseInjectivityRange amts) * (shuffleInjectivityRange $ map snd amts)
 
 -- Total theoretical number of distinct hash sequences arising from given source list
 numberOfHashes :: [(Integer, Integer)] -> Integer
-numberOfHashes srcs = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
+numberOfHashes amts = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
     where
-    fsts = map fst srcs
-    snds = map snd srcs
+    fsts = map fst amts
+    snds = map snd amts
 
 -- MANAGING THE PUBLIC KEY
 -- Public string must be maximum 32 characters in length to insure injectivity
@@ -157,6 +163,20 @@ shuffleString :: String -> String
 shuffleString str = chooseOrdered (getKeyFromString str) (addLength str)
 
 -- USER INTERFACE
+
+-- The main process
+main :: IO ()
+main = do
+    args <- getArgs
+    case (length args) of
+        0 -> helpAction "#help" []
+        1 -> let fullSources = map dropElementInfo defaultConfiguration in helpAction (args !! 0) fullSources
+        2 -> case (args !! 0) of
+            '#':cmd -> helpAction (args !! 0) $ read (args !! 1)
+            '>':cmd -> commandAction (args !! 0) (args !! 1)
+            _ -> hashAction (args !! 0) (args !! 1) defaultConfiguration
+        3 -> hashAction (args !! 0) (args !! 1) (read $ args !! 2)
+        _ -> putStrLn "error: too many arguments"
 
 -- Prints help information
 helpAction :: String -> [(Integer, Integer)] -> IO ()
@@ -201,17 +221,3 @@ hashAction publicStr privateStr config = putStrLn $ getHash privateKey shuffledC
     sources = map fst config
     amounts = map snd config
     shuffledConfig = zip (shuffleSources publicKey sources) amounts
-
--- The main process
-main :: IO ()
-main = do
-    args <- getArgs
-    case (length args) of
-        0 -> helpAction "#help" []
-        1 -> let fullSources = map dropElementInfo defaultConfiguration in helpAction (args !! 0) fullSources
-        2 -> case (args !! 0) of
-            '#':cmd -> helpAction (args !! 0) $ read (args !! 1)
-            '>':cmd -> commandAction (args !! 0) (args !! 1)
-            _ -> hashAction (args !! 0) (args !! 1) defaultConfiguration
-        3 -> hashAction (args !! 0) (args !! 1) (read $ args !! 2)
-        _ -> putStrLn "error: too many arguments"
