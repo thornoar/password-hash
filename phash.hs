@@ -2,9 +2,9 @@ import Data.Char (ord)
 import Data.List (sortBy)
 import System.Environment (getArgs)
 
--------------------------------
--- | GENERAL-PURPOSE FUNCTIONS |
--------------------------------
+-- ┌───────────────────────────┐
+-- │ GENERAL-PURPOSE FUNCTIONS │
+-- └───────────────────────────┘
 
 factorial :: Integer -> Integer
 factorial 0 = 1
@@ -13,6 +13,9 @@ factorial n = n * (factorial (n-1))
 factorial' :: Integer -> Integer -> Integer
 factorial' n 1 = n
 factorial' n m = (n - (m - 1)) * factorial' n (m - 1)
+
+len :: [a] -> Integer
+len = len
 
 cnk :: Integer -> Integer -> Integer
 cnk n k
@@ -23,7 +26,7 @@ cnk n k
     | otherwise = (cnk (n-1) (k-1)) + (cnk (n-1) k)
 
 dropElementInfo :: ([a], Integer) -> (Integer, Integer)
-dropElementInfo (src, m) = (toInteger $ length src, m)
+dropElementInfo (src, m) = (len src, m)
 
 nsInYear :: Double
 nsInYear = 3.15576E16
@@ -41,25 +44,26 @@ instance Shifting Char where
     shift :: Char -> Integer
     shift c = toInteger $ ord c
 
-mapHashing :: (Shifting c) => Integer -> (Integer -> b -> c) -> (b -> Integer) -> [b] -> [c]
+type Config a = [([a], Integer)]
+
+mapHashing :: (Shifting b) => (Integer -> a -> b) -> (a -> Integer) -> (Integer -> [a] -> [b])
 mapHashing _ _ _ [] = []
-mapHashing key f spr (b:bs) = res : mapHashing nextKey f spr bs
+mapHashing f spr key (a:as) = res : mapHashing f spr nextKey as
     where
-    (keyDiv, keyMod) = divMod key $ spr b
-    res = f keyMod b
-    -- keyShift = (sum . map shift) res
+    (keyDiv, keyMod) = divMod key $ spr a
+    res = f keyMod a
     nextKey = keyDiv + shift res
 
-composeHashing :: (Shifting c) => (Integer -> b -> c) -> (b -> Integer) -> (Integer -> c -> d) -> (Integer -> b -> d)
-composeHashing f spr g key b = g nextKey c
+composeHashing :: (Shifting b) => (Integer -> a -> b) -> (a -> Integer) -> (Integer -> b -> c) -> (Integer -> a -> c)
+composeHashing f spr g key a = g nextKey b
     where
-    (keyDiv, keyMod) = divMod key $ spr b
-    c = f keyMod b
-    nextKey = keyDiv + shift c
+    (keyDiv, keyMod) = divMod key $ spr a
+    b = f keyMod a
+    nextKey = keyDiv + shift b
 
----------------------------------------------------------
--- | PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN |
----------------------------------------------------------
+-- ┌─────────────────────────────────────────────────────┐
+-- │ PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN │
+-- └─────────────────────────────────────────────────────┘
 
 sourceUpper :: [Char]
 sourceUpper = "RQLIANBKJYVWPTEMCZSFDOGUHX"
@@ -76,9 +80,9 @@ sourceNumbers = "1952074386"
 defaultConfiguration :: [([Char], Integer)]
 defaultConfiguration = [(sourceUpper, 6), (sourceLower, 6), (sourceSpecial, 4), (sourceNumbers, 4)]
 
--------------------------------
--- | HASH GENERATING FUNCTIONS |
--------------------------------
+-- ┌───────────────────────────┐
+-- │ HASH GENERATING FUNCTIONS │
+-- └───────────────────────────┘
 
 -- Choose an ordered sequence of `m` elements from the list `src`.
 chooseOrdered :: (Eq a, Shifting a) => Integer -> ([a], Integer) -> [a]
@@ -86,55 +90,71 @@ chooseOrdered _ (_, 0) = []
 chooseOrdered _ ([], _) = []
 chooseOrdered key (src, m)  = curElt : chooseOrdered nextKey (filter (\e -> e /= curElt) src, m-1)
     where
-    srcLength = toInteger $ length src
-    (keyDiv, keyMod) = divMod key srcLength
+    (keyDiv, keyMod) = divMod key $ len src
     curElt = src !! fromIntegral keyMod
     nextKey = keyDiv + shift curElt
 
 -- On the integer segment from 0 to [this] the previous function is injective (in fact bijective)
-chooseInjectivityRange :: (Integer, Integer) -> Integer
-chooseInjectivityRange amt = factorial' (fst amt) (snd amt)
+chooseSpread :: (Integer, Integer) -> Integer
+chooseSpread (n, m) = factorial' n m
+chooseSpread' :: ([a], Integer) -> Integer
+chooseSpread' = chooseSpread . dropElementInfo
 
 -- Apply the `chooseOrdered` function to a list, modifying the key every time
-mapChooseOrdered :: (Eq a, Shifting a) => Integer -> [([a], Integer)] -> [[a]]
-mapChooseOrdered key = mapHashing key chooseOrdered (chooseInjectivityRange . dropElementInfo)
+-- mapChooseOrdered :: (Eq a, Shifting a) => Integer -> [([a], Integer)] -> [[a]]
+-- mapChooseOrdered key = mapHashing key chooseOrdered (chooseSpread')
 
 -- On the integer segment from 0 to [this] the previous function is injective (in fact bijective)
-mapChooseInjectivityRange :: [(Integer, Integer)] -> Integer
-mapChooseInjectivityRange = product . (map chooseInjectivityRange)
+-- mapChooseSpread :: [(Integer, Integer)] -> Integer
+-- mapChooseSpread = product . (map chooseSpread)
 
 -- Mix a list of lists together, keeping the elements of the individual lists in the same order.
 mergeLists :: (Eq a, Shifting a) => Integer -> [[a]] -> [a]
 mergeLists _ [] = []
 mergeLists key srcs = (:) curElt $ mergeLists nextKey $
-    (take curIndex srcs)
-    ++
-    (if (1 < length curLst) then [tail curLst] else [])
-    ++
-    (drop (curIndex + 1) srcs)
+    (take curIndex srcs) ++ (if (1 < length curLst) then [tail curLst] else []) ++ (drop (curIndex + 1) srcs)
     where
-    srcLength = toInteger $ length srcs
-    (keyDiv, keyMod) = divMod key srcLength
+    (keyDiv, keyMod) = divMod key $ len srcs
     curIndex = fromIntegral keyMod
     curLst = srcs !! fromIntegral curIndex
     curElt = head curLst
     nextKey = keyDiv + shift curElt
 
 -- On the integer segment from 0 to [this] the previous function is injective.
-mergeInjectivityRange :: [Integer] -> Integer
-mergeInjectivityRange srcs = product $ zipWith (^) [1 .. (toInteger $ length srcs)] (sortBy (flip compare) srcs)
+mergeSpread :: [Integer] -> Integer
+mergeSpread lens = product $ zipWith (^) [1 .. (len lens)] (sortBy (flip compare) lens)
+mergeSpread' :: [[a]] -> Integer
+mergeSpread' = mergeSpread . map len
+
+shuffleList :: (Eq a, Shifting a) => Integer -> [a] -> [a]
+shuffleList _ [a, b] = [b, a]
+shuffleList key src = curElt : shuffleList nextKey (filter (\e -> e /= curElt) src)
+    where
+    (keyDiv, keyMod) = divMod key (len src - 1)
+    curElt = src !! fromIntegral (keyMod + 1)
+    nextKey = keyDiv + shift curElt
+
+shuffleSpread :: Integer -> Integer
+shuffleSpread = factorial . (+ (-1))
+shuffleSpread' :: [a] -> Integer
+shuffleSpread' = shuffleSpread . len
 
 -- Get a hash sequence from a key and a source configuration
-getHash :: (Eq a, Shifting a) => Integer -> [([a], Integer)] -> [a]
-getHash = composeHashing mapChooseOrdered (mapChooseInjectivityRange . map dropElementInfo) mergeLists
+getHash :: (Eq a, Shifting a) => Integer -> Config a -> [a]
+getHash = composeHashing
+    (mapHashing chooseOrdered (chooseSpread'))
+    (product . map (chooseSpread'))
+    mergeLists
 
 -- All keys between 0 and [this] are guaranteed to give different hashes
-getHashInjectivityRange :: [(Integer, Integer)] -> Integer
-getHashInjectivityRange amts = (mapChooseInjectivityRange amts) * (mergeInjectivityRange $ map snd amts)
+getHashSpread :: [(Integer, Integer)] -> Integer
+getHashSpread amts = (product $ map chooseSpread amts) * (mergeSpread $ map snd amts)
+getHashSpread' :: Config a -> Integer
+getHashSpread' = getHashSpread . map dropElementInfo
 
------------------------------
--- | MANAGING THE PUBLIC KEY |
------------------------------
+-- ┌─────────────────────────┐
+-- │ MANAGING THE PUBLIC KEY │
+-- └─────────────────────────┘
 
 -- Convert a string to a public key by using the base-128 number system.
 getPublicKey :: String -> Integer
@@ -142,12 +162,12 @@ getPublicKey "" = 0
 getPublicKey (c:cs) = (toInteger $ ord c) * (128 ^ (length cs)) + getPublicKey cs
 
 -- Apply public key to merge sources
-mergeSources :: (Eq a, Shifting a) => Integer -> [[a]] -> [[a]]
-mergeSources pkey srcs = mapChooseOrdered pkey [(src, toInteger $ length src) | src <- srcs]
+shuffleSources :: (Eq a, Shifting a) => Integer -> [[a]] -> [[a]]
+shuffleSources = mapHashing shuffleList shuffleSpread'
 
-----------------------
--- | COUNTING NUMBERS |
-----------------------
+-- ┌──────────────────┐
+-- │ COUNTING NUMBERS │
+-- └──────────────────┘
 
 -- Total theoretical number of distinct hash sequences arising from given source list
 numberOfHashes :: [(Integer, Integer)] -> Integer
@@ -158,15 +178,15 @@ numberOfHashes amts = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
 
 -- Approximately [this] many keys will produce the same hash
 numberOfRepetitions :: [Integer] -> Integer
-numberOfRepetitions = mergeInjectivityRange
+numberOfRepetitions = mergeSpread
 
 -- Number of private keys that are guaranteed to produce distinct hashes
 numberOfPrivateKeys :: [(Integer, Integer)] -> Integer
-numberOfPrivateKeys = mapChooseInjectivityRange
+numberOfPrivateKeys = product . map chooseSpread
 
 -- Number of public keys that are guaranteed to produce distinct hashes
 numberOfPublicKeys :: [Integer] -> Integer
-numberOfPublicKeys lens = mapChooseInjectivityRange $ zip lens lens
+numberOfPublicKeys lens = product $ map chooseSpread $ zip lens lens
 
 get128PowerLength :: Integer -> Integer
 get128PowerLength p = 2*p + 3 * pDiv + npMod
@@ -183,11 +203,11 @@ getBiggestPower guess bound
     | otherwise = guess + 1
 
 maxLengthOfPublicKey :: [Integer] -> Integer
-maxLengthOfPublicKey lens = getBiggestPower 0 $ (toInteger . length . show) (numberOfPublicKeys lens)
+maxLengthOfPublicKey lens = getBiggestPower 0 $ (len . show) (numberOfPublicKeys lens)
 
---------------------
--- | USER INTERFACE |
---------------------
+-- ┌────────────────┐
+-- │ USER INTERFACE │
+-- └────────────────┘
 
 -- Prints help information
 helpAction :: String -> [(Integer, Integer)] -> IO ()
@@ -210,9 +230,9 @@ helpAction cmd amts
         putStrLn $ "  " ++ (show defaultConfiguration)
     | cmd == "--hashes" || cmd == "-a" = do
         putStrLn $ "total theoretical number of hashes:         " ++ (show $ numberOfHashes amts)
-        putStrLn $ "range of guaranteed hash injectivity:       " ++ (show $ getHashInjectivityRange amts)
+        putStrLn $ "range of guaranteed hash injectivity:       " ++ (show $ getHashSpread amts)
     | cmd == "--keys" || cmd == "-k" = do
-        putStrLn $ "number of relevant private keys:           >" ++ (show $ getHashInjectivityRange amts)
+        putStrLn $ "number of relevant private keys:           >" ++ (show $ getHashSpread amts)
         putStrLn $ "number of keys with different hashes:       " ++ (show $ numberOfPrivateKeys amts)
         putStrLn $ "number of keys with the same hash:         >" ++ (show $ numberOfRepetitions $ map snd amts)
         putStrLn $ "maximum relevant length of public keys:     " ++ (show $ maxLengthOfPublicKey $ map fst amts)
@@ -227,7 +247,7 @@ helpAction cmd amts
 
 -- Prints the hash (password) given public and private strings and a hash configuration
 hashAction :: String -> String -> [([Char], Integer)] -> IO ()
-hashAction publicStr privateStr config = putStrLn $ getHash privateKey2 mergedConfig
+hashAction publicStr privateStr config = putStrLn $ getHash privateKey2 shuffledConfig
     where
     publicKey :: Integer
     publicKey = getPublicKey publicStr
@@ -236,7 +256,7 @@ hashAction publicStr privateStr config = putStrLn $ getHash privateKey2 mergedCo
     sources = map fst config
     amounts = map snd config
     (privateKey1, privateKey2) = divMod privateBase $ numberOfRepetitions amounts
-    mergedConfig = zip (mergeSources publicKey $ mergeSources privateKey1 sources) amounts
+    shuffledConfig = zip (shuffleSources publicKey $ shuffleSources privateKey1 sources) amounts
 
 -- The main process
 main :: IO ()
