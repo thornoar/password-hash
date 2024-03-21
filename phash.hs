@@ -15,7 +15,7 @@ factorial' n 1 = n
 factorial' n m = (n - (m - 1)) * factorial' n (m - 1)
 
 len :: [a] -> Integer
-len = len
+len = toInteger . length
 
 cnk :: Integer -> Integer -> Integer
 cnk n k
@@ -77,7 +77,7 @@ sourceSpecial = "!@#$%^&*()_-+={[}]|:;<,>?"
 sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
 
-defaultConfiguration :: [([Char], Integer)]
+defaultConfiguration :: Config Char
 defaultConfiguration = [(sourceUpper, 6), (sourceLower, 6), (sourceSpecial, 4), (sourceNumbers, 4)]
 
 -- ┌───────────────────────────┐
@@ -99,14 +99,6 @@ chooseSpread :: (Integer, Integer) -> Integer
 chooseSpread (n, m) = factorial' n m
 chooseSpread' :: ([a], Integer) -> Integer
 chooseSpread' = chooseSpread . dropElementInfo
-
--- Apply the `chooseOrdered` function to a list, modifying the key every time
--- mapChooseOrdered :: (Eq a, Shifting a) => Integer -> [([a], Integer)] -> [[a]]
--- mapChooseOrdered key = mapHashing key chooseOrdered (chooseSpread')
-
--- On the integer segment from 0 to [this] the previous function is injective (in fact bijective)
--- mapChooseSpread :: [(Integer, Integer)] -> Integer
--- mapChooseSpread = product . (map chooseSpread)
 
 -- Mix a list of lists together, keeping the elements of the individual lists in the same order.
 mergeLists :: (Eq a, Shifting a) => Integer -> [[a]] -> [a]
@@ -141,10 +133,7 @@ shuffleSpread' = shuffleSpread . len
 
 -- Get a hash sequence from a key and a source configuration
 getHash :: (Eq a, Shifting a) => Integer -> Config a -> [a]
-getHash = composeHashing
-    (mapHashing chooseOrdered (chooseSpread'))
-    (product . map (chooseSpread'))
-    mergeLists
+getHash = composeHashing (mapHashing chooseOrdered chooseSpread') (product . map chooseSpread') mergeLists
 
 -- All keys between 0 and [this] are guaranteed to give different hashes
 getHashSpread :: [(Integer, Integer)] -> Integer
@@ -161,7 +150,7 @@ getPublicKey :: String -> Integer
 getPublicKey "" = 0
 getPublicKey (c:cs) = (toInteger $ ord c) * (128 ^ (length cs)) + getPublicKey cs
 
--- Apply public key to merge sources
+-- Apply public key to shuffle sources without stationary points
 shuffleSources :: (Eq a, Shifting a) => Integer -> [[a]] -> [[a]]
 shuffleSources = mapHashing shuffleList shuffleSpread'
 
@@ -186,24 +175,23 @@ numberOfPrivateKeys = product . map chooseSpread
 
 -- Number of public keys that are guaranteed to produce distinct hashes
 numberOfPublicKeys :: [Integer] -> Integer
-numberOfPublicKeys lens = product $ map chooseSpread $ zip lens lens
-
-get128PowerLength :: Integer -> Integer
-get128PowerLength p = 2*p + 3 * pDiv + npMod
-    where
-    (pDiv, pMod) = divMod p 28
-    npMod
-        | pMod < 10 = 1
-        | pMod < 19 = 2
-        | otherwise = 3
-
-getBiggestPower :: Integer -> Integer -> Integer
-getBiggestPower guess bound
-    | (get128PowerLength $ guess + 1) < bound = getBiggestPower (guess + 1) bound
-    | otherwise = guess + 1
+numberOfPublicKeys = product . map shuffleSpread
 
 maxLengthOfPublicKey :: [Integer] -> Integer
 maxLengthOfPublicKey lens = getBiggestPower 0 $ (len . show) (numberOfPublicKeys lens)
+    where
+    get128PowerLength :: Integer -> Integer
+    get128PowerLength p = 2*p + 3 * pDiv + npMod
+        where
+        (pDiv, pMod) = divMod p 28
+        npMod
+            | pMod < 10 = 1
+            | pMod < 19 = 2
+            | otherwise = 3
+    getBiggestPower :: Integer -> Integer -> Integer
+    getBiggestPower guess bound
+        | (get128PowerLength $ guess + 1) < bound = getBiggestPower (guess + 1) bound
+        | otherwise = guess + 1
 
 -- ┌────────────────┐
 -- │ USER INTERFACE │
@@ -246,7 +234,7 @@ helpAction cmd amts
     | True = putStrLn "error: help command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration
-hashAction :: String -> String -> [([Char], Integer)] -> IO ()
+hashAction :: String -> String -> Config Char -> IO ()
 hashAction publicStr privateStr config = putStrLn $ getHash privateKey2 shuffledConfig
     where
     publicKey :: Integer
@@ -257,6 +245,7 @@ hashAction publicStr privateStr config = putStrLn $ getHash privateKey2 shuffled
     amounts = map snd config
     (privateKey1, privateKey2) = divMod privateBase $ numberOfRepetitions amounts
     shuffledConfig = zip (shuffleSources publicKey $ shuffleSources privateKey1 sources) amounts
+    -- shuffledConfig = zip sources amounts
 
 -- The main process
 main :: IO ()
