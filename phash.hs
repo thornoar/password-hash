@@ -221,8 +221,7 @@ main = do
     case (length args) of
         0 -> helpAction "--help" []
         1 -> helpAction (args !! 0) $ map dropElementInfo defaultConfiguration
-        3 -> case (args !! 0) of
-            '-':cmd -> helpAction (args !! 0) $ read (args !! 1)
-            _ -> hashAction (args !! 0) (args !! 1) (args !! 2) defaultConfiguration
+        2 -> helpAction (args !! 0) $ read (args !! 1)
+        3 -> hashAction (args !! 0) (args !! 1) (args !! 2) defaultConfiguration
         4 -> hashAction (args !! 0) (args !! 1) (args !! 2) (read $ args !! 3)
         _ -> putStrLn "error: too many arguments"
