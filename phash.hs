@@ -1,5 +1,4 @@
 import Data.Char (ord)
-import Data.List (sortBy)
 import System.Environment (getArgs)
 
 -- ┌───────────────────────────┐
@@ -14,9 +13,6 @@ factorial' :: Integer -> Integer -> Integer
 factorial' n 1 = n
 factorial' n m = (n - (m - 1)) * factorial' n (m - 1)
 
-len :: [a] -> Integer
-len = toInteger . length
-
 cnk :: Integer -> Integer -> Integer
 cnk n k
     | k < 0 = 0
@@ -25,11 +21,20 @@ cnk n k
     | k > n = 0
     | otherwise = (cnk (n-1) (k-1)) + (cnk (n-1) k)
 
+timeToCheck :: Double
+timeToCheck = 1.0
+
+psInYear :: Double
+psInYear = 3.15576E19
+
+ageOfUniverse :: Double
+ageOfUniverse = 13.787E6
+
+len :: [a] -> Integer
+len = toInteger . length
+
 dropElementInfo :: ([a], Integer) -> (Integer, Integer)
 dropElementInfo (src, m) = (len src, m)
-
-nsInYear :: Double
-nsInYear = 3.15576E16
 
 -- A typeclass that defines how elements act on integers for shifting the key in recursive calls
 class Shifting a where
@@ -54,22 +59,18 @@ mapHashing f spr key (a:as) = res : mapHashing f spr nextKey as
     res = f keyMod a
     nextKey = keyDiv + shift res
 
-composeHashing :: (Shifting b) => (Integer -> a -> b) -> (a -> Integer) -> (Integer -> b -> c) -> (Integer -> a -> c)
-composeHashing f spr g key a = g nextKey b
-    where
-    (keyDiv, keyMod) = divMod key $ spr a
-    b = f keyMod a
-    nextKey = keyDiv + shift b
+composeHashing :: (Integer -> a -> b) -> (Integer -> b -> c) -> (Integer -> Integer -> a -> c)
+composeHashing f g key1 key2 a = g key2 $ f key1 a
 
 -- ┌─────────────────────────────────────────────────────┐
 -- │ PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN │
 -- └─────────────────────────────────────────────────────┘
 
-sourceUpper :: [Char]
-sourceUpper = "RQLIANBKJYVWPTEMCZSFDOGUHX"
-
 sourceLower :: [Char]
 sourceLower = "ckapzfitqdxnwehrolmbyvsujg"
+
+sourceUpper :: [Char]
+sourceUpper = "RQLIANBKJYVWPTEMCZSFDOGUHX"
 
 sourceSpecial :: [Char]
 sourceSpecial = "!@#$%^&*()_-+={[}]|:;<,>?"
@@ -78,7 +79,10 @@ sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
 
 defaultConfiguration :: Config Char
-defaultConfiguration = [(sourceUpper, 6), (sourceLower, 6), (sourceSpecial, 4), (sourceNumbers, 4)]
+defaultConfiguration = [(sourceLower, 10), (sourceUpper, 10), (sourceSpecial, 5), (sourceNumbers, 5)]
+
+-- tabString :: String
+-- tabString = "                                            "
 
 -- ┌───────────────────────────┐
 -- │ HASH GENERATING FUNCTIONS │
@@ -97,49 +101,14 @@ chooseOrdered key (src, m)  = curElt : chooseOrdered nextKey (filter (\e -> e /=
 -- On the integer segment from 0 to [this] the previous function is injective (in fact bijective)
 chooseSpread :: (Integer, Integer) -> Integer
 chooseSpread (n, m) = factorial' n m
-chooseSpread' :: ([a], Integer) -> Integer
-chooseSpread' = chooseSpread . dropElementInfo
-
--- Mix a list of lists together, keeping the elements of the individual lists in the same order.
-mergeLists :: (Eq a, Shifting a) => Integer -> [[a]] -> [a]
-mergeLists _ [] = []
-mergeLists key srcs = (:) curElt $ mergeLists nextKey $
-    (take curIndex srcs) ++ (if (1 < length curLst) then [tail curLst] else []) ++ (drop (curIndex + 1) srcs)
-    where
-    (keyDiv, keyMod) = divMod key $ len srcs
-    curIndex = fromIntegral keyMod
-    curLst = srcs !! fromIntegral curIndex
-    curElt = head curLst
-    nextKey = keyDiv + shift curElt
-
--- On the integer segment from 0 to [this] the previous function is injective.
-mergeSpread :: [Integer] -> Integer
-mergeSpread lens = product $ zipWith (^) [1 .. (len lens)] (sortBy (flip compare) lens)
-mergeSpread' :: [[a]] -> Integer
-mergeSpread' = mergeSpread . map len
-
-shuffleList :: (Eq a, Shifting a) => Integer -> [a] -> [a]
-shuffleList _ [a, b] = [b, a]
-shuffleList key src = curElt : shuffleList nextKey (filter (\e -> e /= curElt) src)
-    where
-    (keyDiv, keyMod) = divMod key (len src - 1)
-    curElt = src !! fromIntegral (keyMod + 1)
-    nextKey = keyDiv + shift curElt
-
-shuffleSpread :: Integer -> Integer
-shuffleSpread = factorial . (+ (-1))
-shuffleSpread' :: [a] -> Integer
-shuffleSpread' = shuffleSpread . len
 
 -- Get a hash sequence from a key and a source configuration
-getHash :: (Eq a, Shifting a) => Integer -> Config a -> [a]
-getHash = composeHashing (mapHashing chooseOrdered chooseSpread') (product . map chooseSpread') mergeLists
-
--- All keys between 0 and [this] are guaranteed to give different hashes
-getHashSpread :: [(Integer, Integer)] -> Integer
-getHashSpread amts = (product $ map chooseSpread amts) * (mergeSpread $ map snd amts)
-getHashSpread' :: Config a -> Integer
-getHashSpread' = getHashSpread . map dropElementInfo
+getHash :: (Eq a, Shifting a) => Integer -> Integer -> Config a -> [a]
+getHash = composeHashing (mapHashing chooseOrdered (chooseSpread . dropElementInfo)) chooseOrdered'
+    where
+    chooseOrdered' :: (Eq a, Shifting a) => Integer -> [[a]] -> [a]
+    chooseOrdered' key srcs = chooseOrdered key (src, len src)
+        where src = concat srcs
 
 -- ┌─────────────────────────┐
 -- │ MANAGING THE PUBLIC KEY │
@@ -149,10 +118,6 @@ getHashSpread' = getHashSpread . map dropElementInfo
 getPublicKey :: String -> Integer
 getPublicKey "" = 0
 getPublicKey (c:cs) = (toInteger $ ord c) * (128 ^ (length cs)) + getPublicKey cs
-
--- Apply public key to shuffle sources without stationary points
-shuffleSources :: (Eq a, Shifting a) => Integer -> [[a]] -> [[a]]
-shuffleSources = mapHashing shuffleList shuffleSpread'
 
 -- ┌──────────────────┐
 -- │ COUNTING NUMBERS │
@@ -165,20 +130,25 @@ numberOfHashes amts = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
     fsts = map fst amts
     snds = map snd amts
 
--- Approximately [this] many keys will produce the same hash
-numberOfRepetitions :: [Integer] -> Integer
-numberOfRepetitions = mergeSpread
+-- Number of private keys that are guaranteed to produce distinct hashes
+numberOfPrivateChoiceKeys :: [(Integer, Integer)] -> Integer
+numberOfPrivateChoiceKeys = product . map chooseSpread
 
 -- Number of private keys that are guaranteed to produce distinct hashes
-numberOfPrivateKeys :: [(Integer, Integer)] -> Integer
-numberOfPrivateKeys = product . map chooseSpread
+numberOfPrivateShuffleKeys :: [Integer] -> Integer
+numberOfPrivateShuffleKeys = factorial . sum
+
+-- Approximately [this] many keys will produce the same hash
+numberOfRepetitions :: [Integer] -> Integer
+numberOfRepetitions = product . map factorial
 
 -- Number of public keys that are guaranteed to produce distinct hashes
-numberOfPublicKeys :: [Integer] -> Integer
-numberOfPublicKeys = product . map shuffleSpread
+numberOfPublicKeys :: [(Integer, Integer)] -> Integer
+numberOfPublicKeys = numberOfPrivateChoiceKeys
 
-maxLengthOfPublicKey :: [Integer] -> Integer
-maxLengthOfPublicKey lens = getBiggestPower 0 $ (len . show) (numberOfPublicKeys lens)
+-- maxLengthOfPublicKey :: [Integer] -> Integer
+maxLengthOfPublicKey :: [(Integer, Integer)] -> Integer
+maxLengthOfPublicKey amts = getBiggestPower 0 $ (len . show) (numberOfPublicKeys amts)
     where
     get128PowerLength :: Integer -> Integer
     get128PowerLength p = 2*p + 3 * pDiv + npMod
@@ -192,6 +162,12 @@ maxLengthOfPublicKey lens = getBiggestPower 0 $ (len . show) (numberOfPublicKeys
     getBiggestPower guess bound
         | (get128PowerLength $ guess + 1) < bound = getBiggestPower (guess + 1) bound
         | otherwise = guess + 1
+
+timeToCrack :: Integer -> (Integer, Integer)
+timeToCrack num = (floor inYears, floor inAgesOfUniverse)
+    where
+    inYears = (fromIntegral num) * timeToCheck / psInYear
+    inAgesOfUniverse = inYears / ageOfUniverse
 
 -- ┌────────────────┐
 -- │ USER INTERFACE │
@@ -218,34 +194,35 @@ helpAction cmd amts
         putStrLn $ "  " ++ (show defaultConfiguration)
     | cmd == "--hashes" || cmd == "-a" = do
         putStrLn $ "total theoretical number of hashes:         " ++ (show $ numberOfHashes amts)
-        putStrLn $ "range of guaranteed hash injectivity:       " ++ (show $ getHashSpread amts)
     | cmd == "--keys" || cmd == "-k" = do
-        putStrLn $ "number of relevant private keys:           >" ++ (show $ getHashSpread amts)
-        putStrLn $ "number of keys with different hashes:       " ++ (show $ numberOfPrivateKeys amts)
+        putStrLn $ "number of choice keys:                      " ++ (show $ numberOfPrivateChoiceKeys amts)
+        putStrLn $ "number of shuffle keys:                     " ++ (show $ numberOfPrivateShuffleKeys $ map snd amts)
         putStrLn $ "number of keys with the same hash:         >" ++ (show $ numberOfRepetitions $ map snd amts)
-        putStrLn $ "maximum relevant length of public keys:     " ++ (show $ maxLengthOfPublicKey $ map fst amts)
+        putStrLn $ "maximum relevant length of public keys:     " ++ (show $ maxLengthOfPublicKey amts)
     | cmd == "--times" || cmd == "-t" = do
-        putStrLn $ "assumed time to check one private key:      " ++ "1 nanosecond = 10^(-9) s"
-        putStrLn $ "time required to brute-force your password: " ++
-            (show $ floor $ (fromIntegral $ numberOfHashes amts) / nsInYear) ++ " years"
-        putStrLn $ "time required to brute-force your key:      " ++
-            (show $ floor $ (fromIntegral $ numberOfPrivateKeys amts) / nsInYear) ++ " years"
-        putStrLn $ "given the final hash, it is impossible to deduce the private key without brute-forcing."
+        putStrLn $ "assumed time to check one private key:      " ++ "1 picosecond = 10^(-12) s"
+        putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfHashes amts
+                in "time to brute-force your password:          " ++ (show inY) ++ " years\n" ++
+                   "                                         or " ++ (show inAoU) ++ " ages of the Universe"
+        putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateChoiceKeys amts
+                in "time to brute-force your first key:         " ++ (show inY) ++ " years\n" ++
+                   "                                         or " ++ (show inAoU) ++ " ages of the Universe"
+        putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateShuffleKeys $ map snd amts
+                in "time to brute-force your second key:        " ++ (show inY) ++ " years\n" ++
+                   "                                         or " ++ (show inAoU) ++ " ages of the Universe"
+        putStrLn $ "given the final hash, it is impossible to deduce the private keys without brute-forcing."
     | True = putStrLn "error: help command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration
-hashAction :: String -> String -> Config Char -> IO ()
-hashAction publicStr privateStr config = putStrLn $ getHash privateKey2 shuffledConfig
+hashAction :: String -> String -> String -> Config Char -> IO ()
+hashAction publicStr pcs pss config = putStrLn $ getHash privateChoiceKey privateShuffleKey config
     where
     publicKey :: Integer
     publicKey = getPublicKey publicStr
-    privateBase :: Integer
-    privateBase = read $ privateStr
-    sources = map fst config
-    amounts = map snd config
-    (privateKey1, privateKey2) = divMod privateBase $ numberOfRepetitions amounts
-    shuffledConfig = zip (shuffleSources publicKey $ shuffleSources privateKey1 sources) amounts
-    -- shuffledConfig = zip sources amounts
+    privateChoiceKey :: Integer
+    privateChoiceKey = mod (publicKey + read pcs) $ (numberOfPrivateChoiceKeys . map dropElementInfo) config
+    privateShuffleKey :: Integer
+    privateShuffleKey = read pss
 
 -- The main process
 main :: IO ()
@@ -253,9 +230,9 @@ main = do
     args <- getArgs
     case (length args) of
         0 -> helpAction "--help" []
-        1 -> helpAction (args !! 0) (map dropElementInfo defaultConfiguration)
-        2 -> case (args !! 0) of
+        1 -> helpAction (args !! 0) $ map dropElementInfo defaultConfiguration
+        3 -> case (args !! 0) of
             '-':cmd -> helpAction (args !! 0) $ read (args !! 1)
-            _ -> hashAction (args !! 0) (args !! 1) defaultConfiguration
-        3 -> hashAction (args !! 0) (args !! 1) (read $ args !! 2)
+            _ -> hashAction (args !! 0) (args !! 1) (args !! 2) defaultConfiguration
+        4 -> hashAction (args !! 0) (args !! 1) (args !! 2) (read $ args !! 3)
         _ -> putStrLn "error: too many arguments"
