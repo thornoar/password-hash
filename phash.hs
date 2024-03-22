@@ -188,7 +188,7 @@ helpAction cmd amts
         putStrLn $ "number of choice keys:                      " ++ (show $ numberOfPrivateChoiceKeys amts)
         putStrLn $ "number of shuffle keys:                     " ++ (show $ numberOfPrivateShuffleKeys $ map snd amts)
         putStrLn $ "number of key pairs with the same hash:     " ++ (show $ numberOfRepetitions $ map snd amts)
-        putStrLn $ "maximum relevant length of public keys:     " ++ (show $ maxLengthOfPublicKey amts)
+        putStrLn $ "maximum relevant length of the public key:  " ++ (show $ maxLengthOfPublicKey amts)
     | cmd == "--times" || cmd == "-t" = do
         putStrLn $ "assumed time to check one private key:      " ++ "1 picosecond = 10^(-12) s"
         putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfHashes amts
