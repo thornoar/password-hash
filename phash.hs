@@ -14,42 +14,13 @@ factorial' n 1 = n
 factorial' n m = (n - (m - 1)) * factorial' n (m - 1)
 
 cnk :: Integer -> Integer -> Integer
-cnk n k
-    | k < 0 = 0
-    | k == 0 = 1
-    | k == n = 1
-    | k > n = 0
-    | otherwise = (cnk (n-1) (k-1)) + (cnk (n-1) k)
-
-timeToCheck :: Double
-timeToCheck = 1.0
-
-psInYear :: Double
-psInYear = 3.15576E19
-
-ageOfUniverse :: Double
-ageOfUniverse = 13.787E6
+cnk n k = div (factorial' n k) (factorial k)
 
 len :: [a] -> Integer
 len = toInteger . length
 
 dropElementInfo :: ([a], Integer) -> (Integer, Integer)
 dropElementInfo (src, m) = (len src, m)
-
--- A typeclass that defines how elements act on integers for shifting the key in recursive calls
-class Shifting a where
-    shift :: a -> Integer
-
--- Extending the Shifting typeclass on lists
-instance (Shifting a) => Shifting [a] where
-    shift = sum . (map shift)
-
--- Characters shift keys by their ACSII values, amplified
-instance Shifting Char where
-    shift :: Char -> Integer
-    shift c = toInteger $ ord c
-
-type Config a = [([a], Integer)]
 
 mapHashing :: (Shifting b) => (Integer -> a -> b) -> (a -> Integer) -> (Integer -> [a] -> [b])
 mapHashing _ _ _ [] = []
@@ -62,6 +33,18 @@ mapHashing f spr key (a:as) = res : mapHashing f spr nextKey as
 composeHashing :: (Integer -> a -> b) -> (Integer -> b -> c) -> (Integer -> Integer -> a -> c)
 composeHashing f g key1 key2 a = g key2 $ f key1 a
 
+-- A typeclass that defines how elements act on integers for shifting the key in recursive calls
+class Shifting a where
+    shift :: a -> Integer
+
+-- Extending the Shifting typeclass on lists
+instance (Shifting a) => Shifting [a] where
+    shift = sum . (map shift)
+
+-- Characters shift keys by their ACSII values, amplified
+instance Shifting Char where
+    shift = toInteger . ord
+
 -- ┌─────────────────────────────────────────────────────┐
 -- │ PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN │
 -- └─────────────────────────────────────────────────────┘
@@ -73,16 +56,16 @@ sourceUpper :: [Char]
 sourceUpper = "RQLIANBKJYVWPTEMCZSFDOGUHX"
 
 sourceSpecial :: [Char]
-sourceSpecial = "!@#$%^&*()_-+={[}]|:;<,>?"
+sourceSpecial = "=!*@?$%#&-+^"
 
 sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
 
-defaultConfiguration :: Config Char
+defaultConfiguration :: [([Char], Integer)]
 defaultConfiguration = [(sourceLower, 10), (sourceUpper, 10), (sourceSpecial, 5), (sourceNumbers, 5)]
 
--- tabString :: String
--- tabString = "                                            "
+defaultAmounts :: [(Integer, Integer)]
+defaultAmounts = map dropElementInfo defaultConfiguration
 
 -- ┌───────────────────────────┐
 -- │ HASH GENERATING FUNCTIONS │
@@ -103,11 +86,11 @@ chooseSpread :: (Integer, Integer) -> Integer
 chooseSpread (n, m) = factorial' n m
 
 -- Get a hash sequence from a key and a source configuration
-getHash :: (Eq a, Shifting a) => Integer -> Integer -> Config a -> [a]
-getHash = composeHashing (mapHashing chooseOrdered (chooseSpread . dropElementInfo)) chooseOrdered'
+getHash :: (Eq a, Shifting a) => Integer -> Integer -> [([a], Integer)] -> [a]
+getHash = composeHashing (mapHashing chooseOrdered (chooseSpread . dropElementInfo)) shuffleList
     where
-    chooseOrdered' :: (Eq a, Shifting a) => Integer -> [[a]] -> [a]
-    chooseOrdered' key srcs = chooseOrdered key (src, len src)
+    shuffleList :: (Eq a, Shifting a) => Integer -> [[a]] -> [a]
+    shuffleList key srcs = chooseOrdered key (src, len src)
         where src = concat srcs
 
 -- ┌─────────────────────────┐
@@ -163,6 +146,13 @@ maxLengthOfPublicKey amts = getBiggestPower 0 $ (len . show) (numberOfPublicKeys
         | (get128PowerLength $ guess + 1) < bound = getBiggestPower (guess + 1) bound
         | otherwise = guess + 1
 
+timeToCheck :: Double
+timeToCheck = 1.0
+psInYear :: Double
+psInYear = 3.15576E19
+ageOfUniverse :: Double
+ageOfUniverse = 13.787E9
+
 timeToCrack :: Integer -> (Integer, Integer)
 timeToCrack num = (floor inYears, floor inAgesOfUniverse)
     where
@@ -197,7 +187,7 @@ helpAction cmd amts
     | cmd == "--keys" || cmd == "-k" = do
         putStrLn $ "number of choice keys:                      " ++ (show $ numberOfPrivateChoiceKeys amts)
         putStrLn $ "number of shuffle keys:                     " ++ (show $ numberOfPrivateShuffleKeys $ map snd amts)
-        putStrLn $ "number of keys with the same hash:         >" ++ (show $ numberOfRepetitions $ map snd amts)
+        putStrLn $ "number of key pairs with the same hash:     " ++ (show $ numberOfRepetitions $ map snd amts)
         putStrLn $ "maximum relevant length of public keys:     " ++ (show $ maxLengthOfPublicKey amts)
     | cmd == "--times" || cmd == "-t" = do
         putStrLn $ "assumed time to check one private key:      " ++ "1 picosecond = 10^(-12) s"
@@ -214,7 +204,7 @@ helpAction cmd amts
     | True = putStrLn "error: help command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration
-hashAction :: String -> String -> String -> Config Char -> IO ()
+hashAction :: String -> String -> String -> [([Char], Integer)] -> IO ()
 hashAction publicStr pcs pss config = putStrLn $ getHash privateChoiceKey privateShuffleKey config
     where
     publicKey :: Integer
