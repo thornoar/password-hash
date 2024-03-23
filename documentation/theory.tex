@@ -1,0 +1,82 @@
+\documentclass[./main.tex]{subfiles}
+%|return|[./main.tex]
+
+\begin{document}
+
+\section{The theory}
+
+There are many ways to generate hash strings. In our case, these strings are potential passwords, meaning they should contain lower-case and upper-case letters, as well as numbers and special characters. Instead of somehow deriving such symbol sequences directly from the public and private keys, we will be creating the strings by selecting them from a pre-defined set of distinct elements (i.e. the English alphabet or the digits from 0 to 9) and rearranging them. The keys will play a role in determining the rearrangement scheme. With regard to this strategy, some preliminary definitions are in order.
+
+\subsection{Preliminary terminology and notation}
+
+Symbols $ A $, $ B $, $ C $ will denote arbitrary sets (unless specified otherwise). $ \N_0 $ is the set of all non-negative integers.
+
+By $ E $ we will commonly understand a \emph{finite} set of distinct elements, called a \emph{source}. When multiple sources $ E_1 $, $ E_2 $, ..., $ E_N $ are considered, we take none of them to share any elements between each other. In other words, their pair-wise intersections will be assumed to be empty. By $ |E| $ we will denote the cardinality of a source $ E $, and $ E \elt i $ will represent its $ i $-th element, with the numeration starting from $ i = 0 $. On the opposite, the expression $ E \wo i $ will denote the set difference $ E \setminus \{E \elt i\} $
+
+The expression $ [A] $ will denote the set of all \emph{ordered} lists composed from elements of the set $ A $. The subset $ [A]_m \subset [A] $ will include only the lists of length $ m $. Extending the notation, we will define $ [A_1, A_2, ..., A_N] $ as the set of lists $ \alpha = [a_1, a_2, ..., a_N] $ of length $ N $ where the first element is from $ A_1 $, the second from $ A_2 $, and so on, until the last one from $ A_N $. Finally, if $ \alpha \in [A] $ and $ \beta \in [B] $, the list $ \alpha \dop \beta \in [A \cup B] $ will be the concatenation of lists $ \alpha $ and $ \beta $.
+
+Let $ k \in \N_0 $, $ n \in \N $. The numbers $ \lui{N}k, \lli{N}k \in \N_0 $ are defined to be such that $ 0 \lle \lui{N}k < N $ and $ \lli{N}k \cdot N + \lui{N}k = k $. The number $ \lui{N}k $ is the remainder after division by $ N $, and $ \lli{N}k $ is the result of division.
+
+For a number $ N \in \N $, the expression $ (N) $ will represent the semi-open integer interval from 0 to $ N $: $ (N) = \{0, 1, ..., N-1\} $.
+
+Let $ n, m \in \N $, $ m \lle n $. The quantity $ n!/(n-m)! $ will be called a \emph{relative factorial} and denoted by $ (n \mid m)! $\ .
+
+\subsection{The choice function}
+
+The defining feature of the public key is that it is either publicly known or at least very easy to guess. Therefore, it should play little role in actually encrypting the information stored in the private key. It exists solely for the purpose of producing different passwords with the same private key. So for now we will forget about it. In this and the following subsection we will focus on the method of mapping a private key $ k \in \N_0 $ to an ordered selection from a set of sources in an effective and reliable way.
+
+\begin{definition}
+    Let $ E $ be a source, $ k \in \N_0 $. The \emph{choice function of order 1} is defined as the following one-element list:
+    \[ \C^1(E, k) = [E \elt \lui{|E|}k]. \]
+\end{definition}
+
+It corresponds to picking one element from the source according to the key. For a fixed source $ E $, the choice function is periodic with a period of $ |E| $ and is injective  on the interval $ (|E|) $ with respect to $ k $. Injectivity is a very important property for a hashing function, since it determines the number of keys that produce different outputs. When describing injectivity on intervals, the following definition proves useful:
+
+\begin{definition}
+    Let $ A $ be a finite set and let $ f \colon \N_0 \to A $ be a function. The \emph{spread} of $ f $ is defined to be the largest number $ n $ such that, for all $ k_1, k_2 \in \N_0 $, $ k_1 \ne k_2 $, the following implication holds:
+    \[ f(k_1) = f(k_2) \implies |k_1 - k_2| \gge n. \]
+    This number exists due to $ A $ being finite. We will denote this number by $ \spr{f} $.
+\end{definition}
+
+Trivially, if $ \spr{f} \gge n $, then $ f $ is injective on $ (n) $, but the inverse is not always true. Therefore, a lower bound on the spread of a function serves as a guarantee of its injectivity. Furthermore, if $ \spr{f} \gge n $ and $ f $ is bijective on $ (n) $, then $ f $ is periodic with period $ n $ and therefore has a spread of exactly $ n $. We leave this as a simple exercise for the reader.
+
+\begin{proposition}\label{map}
+    Let $ f \colon \N_0 \to A $, $ g \colon \N_0 \to B $ be functions such that $ \spr{f} \gge n $ and $ \spr{g} \gge m $. Define the function $ h \colon \N_0 \to [A, B] $ as follows:
+    \[ h(k) = [f(\lui{n}k), g(\lli{n}k + T(\lui{n}k))], \]
+    where $ T \colon \N_0 \to \N_0 $ is a fixed function, referred to as the argument shift function. It is then stated that $ \spr{h} \gge nm $.
+\end{proposition}
+\begin{proof}
+    Assume that $ k_1 \ne k_2 $ and $ h(k_1) = h(k_2) $. Since $ h $ returns an ordered list, the equality of lists is equivalent to the equality of all their corresponding elements:
+    \begin{gather}
+        f(\lui{n}k_1) = f(\lui{n}k_2),\label{one}\\
+        g(\lli{n}k_1 + T(\lui{n}k_1)) = g(\lli{n}k_2 + T(\lui{n}k_2)).\label{two}
+    \end{gather}
+    Since $ f $ is injective on $ (n) $, we see that $ \lui{n}k_1 = \lui{n}k_2 $. Consequently, it follows from $ k_1 \ne k_2 $ that $ \lli{n}k_1 \ne \lli{n}k_2 $ and $ \lli{n}k_1 + T(\lui{n}k_1) \ne \lli{n}k_2 + T(\lui{n}k_2) $. We can then proceed to utilize the definition of spread for the function $ g $:
+    \begin{align*}
+    | \lli{n}k_1 + T(\lui{n}k_1) - \lli{n}k_2 - T(\lui{n}k_2) | &\gge m,\\[1mm]
+    | \lli{n}k_1 - \lli{n}k_2 | &\gge m,\\[1mm]
+    \left| \frac{k_1 - \lui{n}k_1}{n} - \frac{k_2 - \lui{n}k_2}{n} \right| &\gge m,\\[1mm]
+    \left| \frac{k_1 - k_2}{n} \right| &\gge m,\\[1mm]
+    | k_1 - k_2 | &\gge nm.
+    \end{align*}
+\end{proof}
+
+With this proposition at hand, we have a natural way of extending the definition of the choice function:
+
+\begin{definition}
+    Let $ E $ be a source with cardinality $ |E| = n $, $ k \in \N_0 $, $ 2 \lle m \lle n $. The \emph{choice function of order $ m $} is defined recursively as
+    \[ \C^m(E, k) = [E \elt \lui{n}k] \dop \C^{m-1}(E \wo \lui{n}k,\ \lli{n}k + T(\lui{n}k)), \]
+    where $ T \colon \N_0 \to \N_0 $ is a fixed argument shift function.
+\end{definition}
+
+\begin{proposition}
+    Let $ E $ be a source with cardinality $ n $. Then the choice function $ \C^m(E, k) $ of order $ m \lle n $, as a function of $ k $, has a spread of at least $ (n \mid m)! $\ .
+\end{proposition}
+\begin{proof}
+    We will conduct a proof by induction over $ m $. In the base case, $ m = 1 $, we notice that $ (n \mid m)! = n $, and the statement trivially follows from the definition of $ \C^1 $.
+
+    Let us assume that the statement is proven for choice functions of order $ m - 1 $. Under closer inspection it is clear that the definition of $ \C(k, E, m) $ follows the scheme given in proposition \ref{map}, with $ \C^1(E, -) $ standing for $ f $ and $ \C^{m-1}(E, -) $ standing for $ g $. Thus we can utilize the statement of the proposition:
+    \[ \spr{\C^m(E, -)} \gge (\spr{\C^1(E, -)}) \cdot (\spr{\C^{m-1}(E, -)}) = n \cdot ((n-1))  \] 
+\end{proof}
+
+\end{document}
