@@ -7,7 +7,7 @@
 \let\ps@plain\ps@empty
 \makeatletter
 
-\geometry{top = 1in, bottom = 1in, left = 1in, right = 1in}
+\geometry{top = 1in, bottom = 1in, left = .7in, right = .7in}
 
 \usepackage{tempora}
 
@@ -62,10 +62,10 @@
 
 The motivation behind the topic lies in the management of personal passwords. Nowadays, the average person requires tens of different passwords for different websites and services. Overall, one can distinguish between two ways of managing this set of passwords:
 
-\begin{enumerate}
+\begin{itemize}
     \item \textbf{Keeping everything in one's head.} This is a method employed by many, yet it inevitably leads to certain risks. First of all, in order to fit the passwords in memory, one will probably make them similar to each other, or at least have them follow a simple pattern like "[shortened name of website]+[fixed phrase]". As a result, if even one password is guessed or leaked, it will be almost trivial to retrieve most of the others, following the pattern. Furthermore, the passwords themselves will tend to be memorable and connected to one's personal life, which will make them easier to guess. There is, after all, a limit to one's imagination.
     \item \textbf{Storing the passwords in a secure location.} Arguably, this is a better method, but there is a natural risk of this location being revealed, or of the passwords being lost, especially if they are stored physically on a piece of paper. Currently, various "password managers" are available, which are software programs that will create and store your passwords for you. It is usually unclear, however, how this software works and whether it can be trusted with one's potentially very sensitive passwords. After all, guessing the password to the password manager is enough to have all the other passwords exposed.
-\end{enumerate}
+\end{itemize}
 
 In this paper I suggest a way of doing neither of these things. The user will not know the passwords or have any connection to them whatsoever, and at the same time the passwords will not be stored anywhere, physically or digitally. In this system, every password is a cryptographic hash produced by a fixed hashing algorithm. The algorithm requires two inputs: the public key, i.e. the name of the website or service, and the private key, which is an arbitrary positive integer known only to the user. Every time when retrieving a password, the user will use the keys to re-create it from scratch. Therefore, in order to be reliable, the algorithm must be "pure", i.e. must always return the same output given the same input. Additionally, the algorithm must be robust enough so that, even if a hacker had full access to it and its working, they would still not be able to guess the user's private key or the passwords that it produces. These considerations naturally lead to exploring pure mathematical functions as hashing algorithms and implementing them in a functional programming language such as Haskell.
 
@@ -79,7 +79,7 @@ Symbols $ A $, $ B $, $ C $ will denote arbitrary sets (unless specified otherwi
 
 By $ E $ we will commonly understand a finite set of distinct elements, called a \emph{source}. When multiple sources $ E_0 $, $ E_1 $, ..., $ E_{N-1} $ are considered, we take none of them to share any elements between each other. In other words, their pair-wise intersections will be assumed to be empty. By $ |E| $ we will denote the cardinality of a source $ E $, and $ E \elt i $ will represent its $ i $-th element, with the numeration starting from $ i = 0 $. On the opposite, the expression $ E \wo i $ will denote the set difference $ E \setminus \{E \elt i\} $.
 
-The symbol "$ \# $" will be used to describe the number of ways to make a combinatorial selection. For example, $ \#(E, m) $ is the number of ways to choose $ m $ elements from a source $ E $ with significant order.
+The symbol "$ \# $" will be used to describe the number of ways to make a combinatorial selection. For example, $ \#^m(E) $ is the number of ways to choose $ m $ elements from a source $ E $ with significant order.
 
 The expression $ [A] $ will denote the set of all ordered lists composed from elements of the set $ A $. The subset $ [A]_m \subset [A] $ will include only the lists of length $ m $. Extending the notation, we will define $ [A_0, A_1, ..., A_{N-1}] $ as the set of lists $ \alpha = [a_0, a_1, ..., a_{N-1}] $ of length $ N $ where the first element is from $ A_0 $, the second from $ A_1 $, and so on, until the last one from $ A_{N-1} $. Finally, if $ \alpha \in [A] $ and $ \beta \in [B] $, the list $ \alpha \dop \beta \in [A \cup B] $ will be the concatenation of lists $ \alpha $ and $ \beta $.
 
@@ -88,6 +88,8 @@ Let $ k \in \N_0 $, $ n \in \N $. The numbers $ \lui{N}k, \lli{N}k \in \N_0 $ ar
 For a number $ N \in \N $, the expression $ (N) $ will represent the semi-open integer interval from 0 to $ N $: $ (N) = \{0, 1, ..., N-1\} $.
 
 Let $ n, m \in \N $, $ m \lle n $. The quantity $ n!/(n-m)! $ will be called a \emph{relative factorial} and denoted by $ (n \mid m)! $\ .
+
+If $ f $ is a function of many arguments $ a_0, ..., a_{n-1} $, the expression $ f(a_0, ..., a_{i-1}, -, a_{i+1}, ..., a_{n-1}) $ will represent the function of one argument $ a_i $ where all others are held constant.
 
 \subsection{Enumerating list selections}
 
@@ -98,7 +100,7 @@ The defining feature of the public key is that it is either publicly known or at
     \[ \C^1(E, k) = [E \elt \lui{|E|}k]. \]
 \end{definition}
 
-It corresponds to picking one element from the source according to the key. For a fixed source $ E $, the choice function is periodic with a period of $ |E| $ and is injective  on the interval $ (|E|) $ with respect to $ k $. Injectivity is a very important property for a hashing function, since it determines the number of keys that produce different outputs. When describing injectivity on intervals, the following definition proves useful:
+It corresponds to picking one element from the source according to the key. For a fixed source $ E $, the choice function is periodic with a period of $ |E| $ and is injective  on the interval $ (|E|) $ with respect to $ k $. Injectivity is a very important property for a hash function, since it determines the number of keys that produce different outputs. When describing injectivity on intervals, the following definition proves useful:
 
 \begin{definition}
     Let $ A $ be a finite set and let $ f \colon \N_0 \to A $ be a function. The \emph{spread} of $ f $ is defined to be the largest number $ n $ such that, for all $ k_1, k_2 \in \N_0 $, $ k_1 \ne k_2 $, the following implication holds:
@@ -150,7 +152,7 @@ With this proposition at hand, we have a natural way of extending the definition
 
 The preceding result is especially valuable considering the fact that there are exactly $ (n \mid m)! $ ways to select an ordered sub-list from a list, meaning that $ \C^m(E, k) $ is not only injective, but also surjective with respect to $ k $ on the interval $ ((n \mid m)!) $. This makes it a bijection
 \[ \C^m(E, -) \colon ((n \mid m)!) \to [E]_m, \]
-and therefore a periodic function with a spread of exactly $ (n \mid m)! = \#(E, m) $.
+and therefore a periodic function with a spread of exactly $ (n \mid m)! = \#^m(E) $.
 
 These properties make the choice function a fine candidate for a hash mapping. Suppose that the source $ E $ is composed from lower-case and upper-case Latin characters, as well as special symbols and digits:
 
@@ -192,25 +194,41 @@ In other words, the elevated choice function is a "mapping" of the choice functi
 \begin{equation}\label{elspr}
     \prod\limits_{i = 0}^{N-1} \spr{\C^{m_i}(E_i, -)} = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)!
 \end{equation}
-where $ E_i $, $ n_i $, and $ m_i $ compose the configuration $ \alpha $. In fact, due to the rule of product in combinatorics, we see that the expression in (\ref{elspr}) directly corresponds to the number of possible multiselections from $ \alpha $, or $ \#(\alpha) $. Therefore, $ \CC(\alpha, -) $ is bijective on the interval $ (\#(\alpha)) $ and periodic with period $ \#(\alpha) $.
+where $ E_i $, $ n_i $, and $ m_i $ compose the configuration $ \alpha $. In fact, due to the rule of product in combinatorics, we see that the expression in (\ref{elspr}) directly corresponds to the number of possible multiselections from $ \alpha $, or $ \#^{\CC}(\alpha) $ for convenience. Therefore, $ \CC(\alpha, -) $ is bijective on the interval $ \left(\#^{\CC}(\alpha)\right) $ and periodic with period $ \#^{\CC}(\alpha) $.
 
-This solves the problem with lacking symbol categories --- now we can separate upper-case letters, lower-case letters, numbers, etc. into different sources and apply the elevated choice function, specifying the number of symbols from each source. However, there are two issues remaining:
+This solves the problem with lacking symbol categories --- now we can separate upper-case letters, lower-case letters, numbers, etc. into different sources and apply the elevated choice function, specifying the number of symbols from each source. However, there are two issues arising:
 
 \begin{itemize}
-    \item The result of the elevated choice function will be something like \texttt{"amwYXO28@!"}, which is not a bad password, but it would be nice to be able t shuffle the categories around instead of lining them up one after another.
-    \item Despite the fact that the argument shift function makes the password selection chaotic, the function is a bijection, which means it can be reversed. With sufficient knowledge of the hashing algorithm, a hacker can write a reverse algorithm that retrieves the private key from the resulting password. This is a deal breaker for the function, because it defeats the purpose --- you may as well have one password for everything. The way to solve this problem it to make the choice function artificially non-injective in a controlled way. In such case, many different keys will produce the same password, and it will be impossible to know which one is the correct one without checking every one of them individually. There will not be a clear way from the password to the key.
+    \item The result of the elevated choice function will be something like \texttt{"amwYXT28@!"}, which is not a bad password, but it would be nice to be able to shuffle the individual selections between each other instead of lining them up one after another.
+    \item Despite the fact that the argument shift function makes the password selection chaotic, the function is a bijection, which means that it can be reversed. With sufficient knowledge of the algorithm, a hacker can write an inverse algorithm that retrieves the private key from the resulting password. This is a deal breaker for our function, because it defeats the purpose --- you may as well have one password for everything. The way to solve this problem it to make the choice function artificially non-injective, or overlapping, in a controlled way. In such case, many different keys will produce the same password, and it will be impossible to know which one of them is the correct one. This violates the common non-collision property of hash functions, but it is necessary given the nature of the function we are developing.
 \end{itemize}
 
-We will solve both problems can at the same time.
+We will solve both problems at the same time.
 
-\subsection{The hashing function}
+\subsection{The hash function}
 
 \begin{definition}
     Let $ \alpha $ be a source configuration consisting of pairs $ (E_i, m_i) $ for $ i \in (N) $. For two numbers $ k_1, k_2 \in \N_0 $, define their \emph{hash} by the following expression:
-    \[ \H(\alpha, k_1, k_2) = \C^{\sum m_i}(\dop\CC(\alpha, k_1), k_2), \]
+    \[ \H(\alpha, k_1, k_2) = \C^{\sum m_i}\left(\dop\CC(\alpha, k_1), k_2\right), \]
     where $ \dop \colon [[A]] \to [A] $ is list concatenation. This definition can be re-written in a more readable way by defining the \emph{shuffle function} $ \S(E, k) $ as $ \C^{|E|}(E, k) $ and letting the source configuration $ \alpha $ be the varying argument:
     \[ \H(-, k_1, k_2) = \S(-, k_2) \circ (\dop) \circ \CC(-, k_1). \]
-    The hash function makes a selection from every source in the configuration, then concatenates all these selections, and finally reshuffles the resulting source.
+    The hash function makes a selection from every source in the configuration, then concatenates all these selections, and finally reshuffles the resulting source. The two keys $ k_1 $ and $ k_2 $ used to make a selection will be called the \emph{choice key} and the \emph{shuffle key} respectively.
 \end{definition}
+
+Note that the term "hash" is used loosely here, as it may not adhere to the formal definition of a cryptographic hash. Still, such naming is somewhat justified, given that $ \H $ is designed to be a uniformly distributed encryption mapping that is very hard to invert. We will now discuss the properties of $ \H(\alpha, k_1, k_2) $ for a given source configuration $ \alpha $:
+
+\begin{itemize}
+    \item \textbf{Injectivity.}
+        $ \H $ is injective with respect to the choice key $ k_1 $ on the interval from zero up to
+        \[ \#^{\CC}(\alpha) = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \]
+        This is because $ \CC(\alpha, -) $ is injective on this interval, and $ \S(-, k_2) $ is injective as well. With respect to the shuffle key $ k_2 $, the hash function is injective on the spread of $ \S $, which is
+        \[ \spr{\S(E, -)} = \#^{|E|}(E) = (|E| \mid |E|)! = |E|! = \left( \sum\nolimits_{i = 1}^{N-1} m_i \right)! \]
+        Therefore, the number of relevant key pairs for the hash function, denoted by $ \#^{(k_1, k_2)}(\alpha) $:
+        \[ \#^{(k_1, k_2)}(\alpha) = \#^{\S}(\alpha) \cdot \#^{\CC}(\alpha) = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \left( \sum\nolimits_{i = 1}^{N-1} m_i \right)! \]
+    \item \textbf{Overlapping.}
+        However, this number does not equal the number of all possible values of $ \H $. When applying $ \S $ after $ \CC $, we are changing the order of elements in each source twice. That is, the information about the order of these elements, stored in the output of $ \CC $, is lost after this output is concatenated and reshuffled with $ \S $. Since there are $ m_i! $ ways to reorder every sub-list chosen by $ \CC $ from $ E_i $, the amount of lost information accounts for a total of $ \prod_{i = 0}^{N-1} (m_i!) $, which will be denoted by $ \#^{\cap}(\alpha) $.
+\end{itemize}
+
+
 
 \end{document}
