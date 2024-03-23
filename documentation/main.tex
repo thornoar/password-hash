@@ -162,8 +162,8 @@ These properties make the choice function a fine candidate for a hash mapping. S
 
 The choice function gives us a way to enumerate all possible ways to select a sub-list from $ E $. What's more, these selections can be made more "random" and unpredictable by means of complicating the argument shift function $ T $. A reasonable practice is to set $ T(\lui{n}k) $ to the ASCII value of the character $ E \elt \lui{n}k $. This way, each chosen character will influence the choice of the next, creating what is called a "chaotic system", where its behavior is fully determined, but even small changes to inputs eventually produce large changes in the output. Here is a little input-output table for the choice function of order 10 with the specified source and shift function:
 
-\def\arraystretch{1.3}
 \begin{center}
+\def\arraystretch{1.3}
 % \ttfamily
 \begin{tabular}{l|l}
     123 & \ttfamily"41BeGs9\$Dd"\\
@@ -226,9 +226,60 @@ Note that the term "hash" is used loosely here, as it may not adhere to the form
         Therefore, the number of relevant key pairs for the hash function, denoted by $ \#^{(k_1, k_2)}(\alpha) $:
         \[ \#^{(k_1, k_2)}(\alpha) = \#^{\S}(\alpha) \cdot \#^{\CC}(\alpha) = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \left( \sum\nolimits_{i = 1}^{N-1} m_i \right)! \]
     \item \textbf{Overlapping.}
-        However, this number does not equal the number of all possible values of $ \H $. When applying $ \S $ after $ \CC $, we are changing the order of elements in each source twice. That is, the information about the order of these elements, stored in the output of $ \CC $, is lost after this output is concatenated and reshuffled with $ \S $. Since there are $ m_i! $ ways to reorder every sub-list chosen by $ \CC $ from $ E_i $, the amount of lost information accounts for a total of $ \prod_{i = 0}^{N-1} (m_i!) $, which will be denoted by $ \#^{\cap}(\alpha) $.
+        However, this number does not equal the number of all possible values of $ \H $. When applying $ \S $ after $ \CC $, we are changing the order of elements in each source twice. That is, the information about the order of these elements, stored in the output of $ \CC $, is lost after this output is concatenated and reshuffled with $ \S $. Since there are $ m_i! $ ways to reorder every sub-list chosen by $ \CC $ from $ E_i $, the amount of lost information accounts for a total of $ \prod_{i = 0}^{N-1} (m_i!) $, which will be denoted by $ \#^{\cap}(\alpha) $. It is the number of pairs $ (k_1, k_2) $ that produce the exact same hash. Hence, we see that the number of possible outputs of the hash function, given a configuration $ \alpha $, is
+        \[ \#^{\H}(\alpha) = \frac{\#^{(k_1,k_2)}}{\#^{\cap}(\alpha)} = \frac{\prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \left(\sum\nolimits_{i = 0}^{N-1} m_i\right)!}{\prod\limits_{i = 0}^{N-1} (m_i)!} = \prod\limits_{i = 0}^{N-1} {{n_i}\choose{m_i}} \cdot \left(\sum\nolimits_{i = 0}^{N-1} m_i\right)! \] 
 \end{itemize}
 
+With respect to each of the two keys, $ \H $ is an injective function, but in combination they clash together and, to a degree, encrypt each other, erasing the trace to the original pair.
 
+\subsection{Producing different hashes with the same private keys}
+
+The premise of this entire discussion was that one requires many passwords for different purposes. Right now, the only way is to create a new choice-shuffle pair for every new occasion. You may as well try to remember the hashes themselves. This is where the public key comes into play. The public, denoted $ p $, is an integer number defined by the situation and available to the public. We will assume that it is the name of the website for which the password is required, like \texttt{"google"}, for example, converted into a number by treating the characteers in the string as digits in base-128. This number acts on the choice private key by shifting it modulo $ \#^{\CC}(\alpha) $:
+\[ k_1' = \lui{\#^{\CC}(\alpha)}(k_1 + p), \] 
+and then this new choice key is plugged into the hash function along with the shuffle key. Due to the injectivity of $ \H $ with respect to $ k_1 $, we see that different public keys produce different output hashes, as long as they remain in the interval $ \left( \#^{\CC}(\alpha) \right) $. Its influence on $ k_1 $ is simple and predictable, but it doesn't have to be complex, since the public key is not responsible for any encryption. Instead it is designed to be easily remembered.
+
+\subsection{Counting ages of the Universe}
+
+In this subsection, we will use a specific source configuration $ \alpha $, particularly the following:
+
+\begin{center}
+\def\arraystretch{1.2}
+\begin{tabular}{l|l|l|l}\ttfamily
+    $ i $ & $ E_i $ & $ n_i $ & $ m_i $\\
+    \hline
+    0 & \ttfamily"ckapzfitqdxnwehrolmbyvsujg" & 26 & 10\\
+    1 & \ttfamily"RQLIANBKJYVWPTEMCZSFDOGUHX" & 26 & 10\\
+    2 & \ttfamily"=!*@?\$\%\#\&-\^{}+"        & 12 & 5\\
+    3 & \ttfamily"1952074386"                 & 10 & 5\\
+\end{tabular}
+\end{center}
+
+Therefore, every password produced with this configuration will contain a total of 30 symbols, 10, 10, 5 and 5 from their respective categories.
+
+Now, let's imagine that you have inserted your two private keys into the function and got a password out of it. A sophisticated hacker sets their mind to crack your password whatever it takes. They are very smart and they have a supercomputer that can perform 1,000,000,000,000 password checks in a second, or one picosecond to check one password or key. What's more, they got their hands on the hash function and the configuration you use, so they can try to reverse-engineer your password.
+
+First, they read into the configuration and see the structure of the password. They decide to brute-force it by checking every relevant combination of 30 symbols. Well, they will have to check $ \#^{\H}(\alpha) $ combinations, which in our case equals exactly
+\[ \#^{\H}(\alpha) = 1,493,683,548,205,755,958,753,683,829,702,969,075,433,472,000,000,000. \] 
+
+Cracking it would take the supercomputer about $ 47,331,975,441,914,340,970,572,896,272,384 $ years, or about 3 billion of millions of millions of ages of the Universe.\\
+
+Okay, thinks the hacker, no luck. They dig a little deeper into the algorithm and find that your password depens on two private keys. The number of all pairs of such keys is
+
+\[
+\#^{(k_1,k_2)}(\alpha) = \begin{array}[t]{l}
+    283,235,154,137,060,638,511,193,623,530,464,\\
+    898,307,082,375,546,273,792,000,000,000,000,000
+\end{array}
+\]
+
+This one is going to take billions of billions times longer than the previous one.\\
+
+Okay, thinks the hacker, the night is young. They are able to get their hands on one of your 30-symbol passwords because of a security leak on the website you were registered to. They have also dug ears deep into the hash function and understood how it works to the tiniest detail. Now, they want to retrieve your private keys to be able to generate your passwords to all other websites and services you use. They see that your password starts with a \texttt{'W'}. They know it was shuffled from some other position by the shuffle function, $ \S(-, k_2) $, but they don't know what the password was before the shuffling. What they do know is that your password is produced by
+\[ \#^{\cap}(\alpha) = 189,621,927,936,000,000 \]
+different $ (k_1, k_2) $ pairs. The hacker now has essentially two options:
+
+\begin{itemize}
+    \item They can start trying different shuffle keys
+\end{itemize}
 
 \end{document}

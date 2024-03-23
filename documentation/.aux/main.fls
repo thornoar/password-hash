@@ -1443,8 +1443,8 @@ INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-fin
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/vf/public/tempora/Tempora-Italic-tlf-t1.vf
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/tfm/public/tempora/Tempora-Italic-tlf-t1--base.tfm
 INPUT .aux/main.aux
-INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolF.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolS.enc
+INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolF.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolD.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolA.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolE.enc
@@ -1454,6 +1454,7 @@ INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-fin
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/cm-super/cm-super-t1.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/tempora/tmp_jglahm.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/mnsymbol/MnSymbol12.pfb
+INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/mnsymbol/MnSymbol6.pfb
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/mnsymbol/MnSymbol8.pfb
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/tempora/Tempora-Bold.pfb
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/tempora/Tempora-Italic.pfb

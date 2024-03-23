@@ -4,3 +4,5 @@
 \contentsline {subsection}{\numberline {2.2}Enumerating list selections}{4}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Elevating the choice function}{6}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}The hash function}{7}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Producing different hashes with the same private keys}{8}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Counting ages of the Universe}{9}{subsection.2.6}%

@@ -1,8 +1,8 @@
 # Fdb version 4
-["pdflatex"] 1711227535 "./main.tex" "main.pdf" "main" 1711227536 0
-  "./main.tex" 1711227516 21190 6c15c1ab011a882d43a23d919512638b ""
-  ".aux/main.aux" 1711227536 3489 a571e1857b7cb6bea0ba5fda6602dca2 "pdflatex"
-  ".aux/main.toc" 1711227536 507 706fb70903e03718d8b3d7a3f8287364 "pdflatex"
+["pdflatex"] 1711235574 "./main.tex" "main.pdf" "main" 1711235575 0
+  "./main.tex" 1711235573 26055 9792a90cd821bd34ef68595c3764247e ""
+  ".aux/main.aux" 1711235574 4841 136751e1ad4d77a2c2ad6b01faf98483 "pdflatex"
+  ".aux/main.toc" 1711235574 721 a5dc687b5d2b5729fe35fda019385a86 "pdflatex"
   "/home/ramak/projects/libs/Graphics.tex" 1704954848 594 c926ead8c5f949a4b468256d6360e479 ""
   "/home/ramak/projects/libs/Math.tex" 1711159053 9331 53de1034def1fe343cb62832c5d5dbec ""
   "/home/ramak/projects/libs/Text.tex" 1710970334 1614 4ce7121a4c478c0d98f06484f8cf658d ""
@@ -72,6 +72,7 @@
   "/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/symbols/msbm10.pfb" 1 34694 ad62b13721ee8eda1dcc8993c8bd7041 ""
   "/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/cm-super/sftt1200.pfb" 1 167085 68de377d2744a68a88fa40a1f610615a ""
   "/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/mnsymbol/MnSymbol12.pfb" 1 229585 bdba772a656e8a0005d66210fc9c2be0 ""
+  "/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/mnsymbol/MnSymbol6.pfb" 1 228561 f013e042f586e685f4f490b0a6ea8e0a ""
   "/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/mnsymbol/MnSymbol8.pfb" 1 228273 1b9652077d8f9fdc99f210b93860040b ""
   "/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/tempora/Tempora-Bold.pfb" 1 181681 b443b7e97144338c96d0f474e6f7e008 ""
   "/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/tempora/Tempora-Italic.pfb" 1 187788 f822d966dc5ae78d0f4587fd6153c70d ""
@@ -272,7 +273,7 @@
   "/nix/store/n7qpjyzs6iszsavbm1axm0x9diir2pd1-texlive-combined-full-2022-final/share/texmf-var/web2c/pdftex/pdflatex.fmt" 1 7884368 4262c67ce7c05bd80a85a17da58b06a7 ""
   "/nix/store/n7qpjyzs6iszsavbm1axm0x9diir2pd1-texlive-combined-full-2022-final/share/texmf-var/web2c/texmf.cnf" 1 42317 89c6983bc0dedaee9a6ed4d2c52a2212 ""
   "figures/haskell.png" 1710969659 2576 7980f12609cdd78372c2055b90e19746 ""
-  "main.tex" 1711227516 21190 6c15c1ab011a882d43a23d919512638b ""
+  "main.tex" 1711235573 26055 9792a90cd821bd34ef68595c3764247e ""
   (generated)
   ".aux/main.aux"
   ".aux/main.log"
