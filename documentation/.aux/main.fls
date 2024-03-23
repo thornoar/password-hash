@@ -1425,14 +1425,6 @@ INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-fin
 OUTPUT .aux/main.toc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/vf/public/tempora/Tempora-Bold-tlf-t1.vf
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/tfm/public/tempora/Tempora-Bold-tlf-t1--base.tfm
-INPUT ./introduction.tex
-INPUT introduction.tex
-INPUT ./introduction.tex
-INPUT introduction.tex
-INPUT ./theory.tex
-INPUT theory.tex
-INPUT ./theory.tex
-INPUT theory.tex
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/tfm/public/tempora/Tempora-Regular-tlf-t1.tfm
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/tfm/public/tempora/Tempora-Bold-tlf-t1.tfm
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/tfm/public/tempora/Tempora-Italic-tlf-t1.tfm

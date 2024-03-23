@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/nixos.org) (preloaded format=pdflatex 1980.1.1)  23 MAR 2024 01:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/nixos.org) (preloaded format=pdflatex 1980.1.1)  23 MAR 2024 02:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2407,60 +2407,60 @@ LaTeX Font Info:    Font shape `T1/Tempora-TLF/b/n' will be
 \tf@toc=\write4
 \openout4 = `main.toc'.
 
- [2] (./introduction.tex)
-(./theory.tex
+ [2]
 LaTeX Font Info:    Font shape `T1/Tempora-TLF/m/n' will be
-(Font)              scaled to size 14.4pt on input line 10.
+(Font)              scaled to size 14.4pt on input line 84.
 LaTeX Font Info:    Font shape `T1/Tempora-TLF/b/n' will be
-(Font)              scaled to size 14.4pt on input line 10.
+(Font)              scaled to size 14.4pt on input line 84.
  [3]
 LaTeX Font Info:    Font shape `T1/Tempora-TLF/m/it' will be
-(Font)              scaled to size 12.0pt on input line 14.
- [4]) [5] (.aux/main.aux) ) 
+(Font)              scaled to size 12.0pt on input line 88.
+ [4] [5] [6]
+(.aux/main.aux) ) 
 Here is how much of TeX's memory you used:
- 31655 strings out of 476024
- 608284 string characters out of 5764067
- 1871388 words of memory out of 5000000
- 51476 multiletter control sequences out of 15000+600000
+ 31646 strings out of 476024
+ 608140 string characters out of 5764067
+ 1872388 words of memory out of 5000000
+ 51472 multiletter control sequences out of 15000+600000
  562884 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 99i,17n,96p,1171b,650s stack positions out of 10000i,1000n,20000p,200000b,200000s
-{/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive
--combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc}{/ni
-x/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmf
-dist/fonts/enc/dvips/mnsymbol/MnSymbolA.enc}{/nix/store/k019qj51xkrbscypdvxcyny
-xk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/M
-nSymbolE.enc}{/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full
--2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolS.enc}{/nix/store/k019qj
-51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc
-/dvips/mnsymbol/MnSymbolD.enc}{/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texl
-ive-combined-full-2022-final-texmfdist/fonts/enc/dvips/tempora/tmp_aq2g6w.enc}{
-/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-te
-xmfdist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/nix/store/k019qj51xkrbscypdv
-xcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/tempo
-ra/tmp_jglahm.enc}</nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined
--full-2022-final-texmfdist/fonts/type1/public/mnsymbol/MnSymbol12.pfb></nix/sto
-re/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/
-fonts/type1/public/mnsymbol/MnSymbol8.pfb></nix/store/k019qj51xkrbscypdvxcynyxk
-1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/tempora/T
-empora-Bold.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-f
-ull-2022-final-texmfdist/fonts/type1/public/tempora/Tempora-Italic.pfb></nix/st
-ore/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist
-/fonts/type1/public/tempora/Tempora-Regular.pfb></nix/store/k019qj51xkrbscypdvx
-cynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/ams
-fonts/cm/cmmi12.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combin
-ed-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></nix/sto
-re/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/
-fonts/type1/public/amsfonts/cm/cmr12.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1
-syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/c
-m/cmr8.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2
-022-final-texmfdist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></nix/store/
-k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fon
-ts/type1/public/cm-super/sftt1200.pfb>
-Output written on .aux/main.pdf (5 pages, 203969 bytes).
+ 99i,17n,96p,1144b,550s stack positions out of 10000i,1000n,20000p,200000b,200000s
+{/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-
+full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc}{/nix/store/k0
+19qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts
+/enc/dvips/mnsymbol/MnSymbolA.enc}{/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-
+texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolE.e
+nc}{/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-fina
+l-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolS.enc}{/nix/store/k019qj51xkrbscyp
+dvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mns
+ymbol/MnSymbolD.enc}{/nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combin
+ed-full-2022-final-texmfdist/fonts/enc/dvips/tempora/tmp_aq2g6w.enc}{/nix/store
+/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fo
+nts/enc/dvips/cm-super/cm-super-t1.enc}{/nix/store/k019qj51xkrbscypdvxcynyxk1sy
+x0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/tempora/tmp_jgl
+ahm.enc}</nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022
+-final-texmfdist/fonts/type1/public/mnsymbol/MnSymbol12.pfb></nix/store/k019qj5
+1xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type
+1/public/mnsymbol/MnSymbol8.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-te
+xlive-combined-full-2022-final-texmfdist/fonts/type1/public/tempora/Tempora-Bol
+d.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-f
+inal-texmfdist/fonts/type1/public/tempora/Tempora-Italic.pfb></nix/store/k019qj
+51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/typ
+e1/public/tempora/Tempora-Regular.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1syx
+0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/c
+mmi12.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-20
+22-final-texmfdist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></nix/store/k019qj5
+1xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type
+1/public/amsfonts/cm/cmr12.pfb></nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-tex
+live-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr8.pfb
+></nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-
+texmfdist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></nix/store/k019qj51xk
+rbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/p
+ublic/cm-super/sftt1200.pfb>
+Output written on .aux/main.pdf (6 pages, 205056 bytes).
 PDF statistics:
- 149 PDF objects out of 1000 (max. 8388607)
- 111 compressed objects within 2 object streams
- 19 named destinations out of 1000 (max. 500000)
+ 153 PDF objects out of 1000 (max. 8388607)
+ 114 compressed objects within 2 object streams
+ 20 named destinations out of 1000 (max. 500000)
  50 words of extra memory for PDF output out of 10000 (max. 10000000)
 
