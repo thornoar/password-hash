@@ -240,12 +240,12 @@ helpAction cmd amts
         putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfHashes amts
                 in "time to brute-force your password:          " ++ (show inY) ++ " years\n" ++
                    "                                         or " ++ (show inAoU) ++ " ages of the Universe"
-        putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateChoiceKeys amts
-                in "time to brute-force your first key:         " ++ (show inY) ++ " years\n" ++
-                   "                                         or " ++ (show inAoU) ++ " ages of the Universe"
-        putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateShuffleKeys $ map snd amts
-                in "time to brute-force your second key:        " ++ (show inY) ++ " years\n" ++
-                   "                                         or " ++ (show inAoU) ++ " ages of the Universe"
+        -- putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateChoiceKeys amts
+        --         in "time to brute-force your first key:         " ++ (show inY) ++ " years\n" ++
+        --            "                                         or " ++ (show inAoU) ++ " ages of the Universe"
+        -- putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateShuffleKeys $ map snd amts
+        --         in "time to brute-force your second key:        " ++ (show inY) ++ " years\n" ++
+        --            "                                         or " ++ (show inAoU) ++ " ages of the Universe"
         putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfRepetitions $ map snd amts
                 in "time to retrieve the keys based on a hash:  " ++ (show inY) ++ " years\n" ++
                    "                                         or " ++ (show inAoU) ++ " ages of the Universe"
