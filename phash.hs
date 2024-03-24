@@ -22,17 +22,6 @@ len = toInteger . length
 dropElementInfo :: ([a], Integer) -> (Integer, Integer)
 dropElementInfo (src, m) = (len src, m)
 
-mapHashing :: (Shifting b) => (Integer -> a -> b) -> (a -> Integer) -> (Integer -> [a] -> [b])
-mapHashing _ _ _ [] = []
-mapHashing f spr key (a:as) = res : mapHashing f spr nextKey as
-    where
-    (keyDiv, keyMod) = divMod key $ spr a
-    res = f keyMod a
-    nextKey = keyDiv + shift res
-
-composeHashing :: (Integer -> a -> b) -> (Integer -> b -> c) -> (Integer -> Integer -> a -> c)
-composeHashing f g key1 key2 a = g key2 $ f key1 a
-
 -- A typeclass that defines how elements act on integers for shifting the key in recursive calls
 class Shifting a where
     shift :: a -> Integer
@@ -44,6 +33,24 @@ instance (Shifting a) => Shifting [a] where
 -- Characters shift keys by their ACSII values, amplified
 instance Shifting Char where
     shift = toInteger . ord
+
+mapHashing :: (Shifting b) => (a -> Integer -> b) -> (a -> Integer) -> ([a] -> Integer -> [b])
+mapHashing _ _ [] _ = []
+mapHashing f spr (a:as) key = fres : mapHashing f spr as nextKey
+    where
+    (keyDiv, keyMod) = divMod key $ spr a
+    fres = f a keyMod
+    nextKey = keyDiv + shift fres
+
+composeHashing :: (a -> Integer -> b) -> (b -> Integer -> c) -> (a -> Integer -> Integer -> c)
+composeHashing f g a key1 key2 = g (f a key1) key2
+
+composeHashing' :: (Shifting b) => (a -> Integer -> b) -> (a -> Integer) -> (b -> Integer -> c) -> (a -> Integer -> c)
+composeHashing' f spr g a key = g fres nextKey
+    where
+    (keyDiv, keyMod) = divMod key $ spr a
+    fres = f a keyMod
+    nextKey = keyDiv + shift fres
 
 -- ┌─────────────────────────────────────────────────────┐
 -- │ PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN │
@@ -62,7 +69,7 @@ sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
 
 defaultConfiguration :: [([Char], Integer)]
-defaultConfiguration = [(sourceLower, 10), (sourceUpper, 10), (sourceSpecial, 5), (sourceNumbers, 5)]
+defaultConfiguration = [(sourceLower, 10), (sourceUpper, 10), (sourceSpecial, 6), (sourceNumbers, 6)]
 
 defaultAmounts :: [(Integer, Integer)]
 defaultAmounts = map dropElementInfo defaultConfiguration
@@ -72,10 +79,10 @@ defaultAmounts = map dropElementInfo defaultConfiguration
 -- └───────────────────────────┘
 
 -- Choose an ordered sequence of `m` elements from the list `src`.
-chooseOrdered :: (Eq a, Shifting a) => Integer -> ([a], Integer) -> [a]
-chooseOrdered _ (_, 0) = []
-chooseOrdered _ ([], _) = []
-chooseOrdered key (src, m)  = curElt : chooseOrdered nextKey (filter (\e -> e /= curElt) src, m-1)
+chooseOrdered :: (Eq a, Shifting a) => ([a], Integer) -> Integer -> [a]
+chooseOrdered (_, 0) _ = []
+chooseOrdered ([], _) _ = []
+chooseOrdered (src, m) key  = curElt : chooseOrdered (filter (\e -> e /= curElt) src, m-1) nextKey
     where
     (keyDiv, keyMod) = divMod key $ len src
     curElt = src !! fromIntegral keyMod
@@ -85,13 +92,50 @@ chooseOrdered key (src, m)  = curElt : chooseOrdered nextKey (filter (\e -> e /=
 chooseSpread :: (Integer, Integer) -> Integer
 chooseSpread (n, m) = factorial' n m
 
--- Get a hash sequence from a key and a source configuration
-getHash :: (Eq a, Shifting a) => Integer -> Integer -> [([a], Integer)] -> [a]
-getHash = composeHashing (mapHashing chooseOrdered (chooseSpread . dropElementInfo)) shuffleList
+mergeTwoLists :: (Shifting a) => [a] -> [a] -> Integer -> [a]
+mergeTwoLists [] lst2 _ = lst2
+mergeTwoLists lst1 [] _ = lst1
+mergeTwoLists lst1 lst2 key
+    | curKey < spr1 =
+        let elt = (head lst1)
+        in elt : mergeTwoLists (tail lst1) lst2 (curKey + shift elt)
+    | otherwise =
+        let elt = (head lst2)
+        in elt : mergeTwoLists lst1 (tail lst2) (curKey - spr1 + shift elt)
     where
-    shuffleList :: (Eq a, Shifting a) => Integer -> [[a]] -> [a]
-    shuffleList key srcs = chooseOrdered key (src, len src)
-        where src = concat srcs
+    mergeTwoBoundary :: Integer -> Integer -> Integer
+    mergeTwoBoundary m1 m2 = div (factorial (m1 + m2)) (factorial m1 * factorial m2)
+    spr1 = mergeTwoBoundary (len lst1 - 1) (len lst2)
+    spr2 = mergeTwoBoundary (len lst1) (len lst2 - 1)
+    curKey = mod key (spr1 + spr2)
+
+mergeLists :: (Shifting a) => [[a]] -> Integer -> [a]
+mergeLists [] _ = []
+mergeLists [l] _ = l
+mergeLists [l1,l2] key = mergeTwoLists l1 l2 key
+mergeLists (l:ls) key = mergeTwoLists l (mergeLists ls keyMod) nextKey
+    where
+    (keyDiv, keyMod) = divMod key $ mergeListsSpread $ map len ls
+    nextKey = keyDiv + shift l
+
+mergeListsSpread :: [Integer] -> Integer
+mergeListsSpread amts = div (factorial $ sum amts) ((product . map factorial) amts)
+
+getChoiceAndMerge :: (Eq a, Shifting a) => [([a], Integer)] -> Integer -> [a]
+getChoiceAndMerge = composeHashing'
+    (mapHashing chooseOrdered (chooseSpread . dropElementInfo))
+    (product . map (chooseSpread . dropElementInfo))
+    mergeLists
+
+-- getChoiceAndMergeSpread :: [(Integer, Integer)] -> Integer
+-- getChoiceAndMergeSpread amts = ((product . map chooseSpread) amts) * (mergeListsSpread $ map snd amts)
+
+-- Get a hash sequence from a key and a source configuration
+getHash :: (Eq a, Shifting a) => [([a], Integer)] -> Integer -> Integer -> [a]
+getHash = composeHashing getChoiceAndMerge shuffleList
+    where
+    shuffleList :: (Eq a, Shifting a) => [a] -> Integer -> [a]
+    shuffleList src key = chooseOrdered (src, len src) key
 
 -- ┌─────────────────────────┐
 -- │ MANAGING THE PUBLIC KEY │
@@ -115,7 +159,8 @@ numberOfHashes amts = (product $ zipWith cnk fsts snds) * (factorial $ sum snds)
 
 -- Number of private keys that are guaranteed to produce distinct hashes
 numberOfPrivateChoiceKeys :: [(Integer, Integer)] -> Integer
-numberOfPrivateChoiceKeys = product . map chooseSpread
+numberOfPrivateChoiceKeys amts = ((product . map chooseSpread) amts) * ((mergeListsSpread . map snd) amts)
+-- numberOfPrivateChoiceKeys = product . map chooseSpread
 
 -- Number of private keys that are guaranteed to produce distinct hashes
 numberOfPrivateShuffleKeys :: [Integer] -> Integer
@@ -123,7 +168,8 @@ numberOfPrivateShuffleKeys = factorial . sum
 
 -- Approximately [this] many keys will produce the same hash
 numberOfRepetitions :: [Integer] -> Integer
-numberOfRepetitions = product . map factorial
+numberOfRepetitions = numberOfPrivateShuffleKeys
+-- numberOfRepetitions = product . map factorial
 
 -- Number of public keys that are guaranteed to produce distinct hashes
 numberOfPublicKeys :: [(Integer, Integer)] -> Integer
@@ -200,12 +246,15 @@ helpAction cmd amts
         putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateShuffleKeys $ map snd amts
                 in "time to brute-force your second key:        " ++ (show inY) ++ " years\n" ++
                    "                                         or " ++ (show inAoU) ++ " ages of the Universe"
+        putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfRepetitions $ map snd amts
+                in "time to retrieve the keys based on a hash:  " ++ (show inY) ++ " years\n" ++
+                   "                                         or " ++ (show inAoU) ++ " ages of the Universe"
         putStrLn $ "given the final hash, it is impossible to deduce the private keys without brute-forcing."
     | True = putStrLn "error: help command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration
 hashAction :: String -> String -> String -> [([Char], Integer)] -> IO ()
-hashAction publicStr pcs pss config = putStrLn $ getHash privateChoiceKey privateShuffleKey config
+hashAction publicStr pcs pss config = putStrLn $ getHash config privateChoiceKey privateShuffleKey
     where
     publicKey :: Integer
     publicKey = getPublicKey publicStr

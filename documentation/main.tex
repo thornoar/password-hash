@@ -203,7 +203,7 @@ This solves the problem with lacking symbol categories --- now we can separate u
     \item Despite the fact that the argument shift function makes the password selection chaotic, the function is a bijection, which means that it can be reversed. With sufficient knowledge of the algorithm, a hacker can write an inverse algorithm that retrieves the private key from the resulting password. This is a deal breaker for our function, because it defeats the purpose --- you may as well have one password for everything. The way to solve this problem it to make the choice function artificially non-injective, or overlapping, in a controlled way. In such case, many different keys will produce the same password, and it will be impossible to know which one of them is the correct one. This violates the common non-collision property of hash functions, but it is necessary given the nature of the function we are developing.
 \end{itemize}
 
-We will solve both problems at the same time.
+We will solve one problem at a time.
 
 \subsection{The hash function}
 
@@ -278,8 +278,6 @@ Okay, thinks the hacker, the night is young. They are able to get their hands on
 \[ \#^{\cap}(\alpha) = 189,621,927,936,000,000 \]
 different $ (k_1, k_2) $ pairs. The hacker now has essentially two options:
 
-\begin{itemize}
-    \item They can start trying different shuffle keys
-\end{itemize}
+
 
 \end{document}
