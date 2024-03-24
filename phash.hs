@@ -249,7 +249,6 @@ helpAction cmd amts
         putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfRepetitions $ map snd amts
                 in "time to retrieve the keys based on a hash:  " ++ (show inY) ++ " years\n" ++
                    "                                         or " ++ (show inAoU) ++ " ages of the Universe"
-        putStrLn $ "given the final hash, it is impossible to deduce the private keys without brute-forcing."
     | True = putStrLn "error: help command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration
