@@ -15,10 +15,13 @@
 \newcommand{\CC}{\overline{\mathcal{C}}}
 \renewcommand{\H}{\mathcal{H}}
 \renewcommand{\S}{\mathcal{S}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\conf}{\mathfrak{L}}
+% \newcommand{\conf}{\Gamma}
 
 \newcommand{\dop}{\mathbin{{+}\hspace{-1mm}{+}}}
 
-\newcommand{\spr}[1]{\operator{\mathrm{spr}}{(#1)}}
+\newcommand{\spr}[1]{\operator{\mathrm{spr}}{\left(#1\right)}}
 
 \usepackage{mathtools, leftindex}
 
@@ -113,22 +116,23 @@ Trivially, if $ \spr{f} \gge n $, then $ f $ is injective on $ (n) $, but the in
 \begin{proposition}\label{map}
     Let $ f \colon \N_0 \to A $, $ g \colon \N_0 \to B $ be functions such that $ \spr{f} \gge n $ and $ \spr{g} \gge m $. Define the function $ h \colon \N_0 \to [A, B] $ as follows:
     \[ h(k) = [f(\lui{n}k), g(\lli{n}k + T(\lui{n}k))], \]
-    where $ T \colon \N_0 \to \N_0 $ is a fixed function, referred to as the argument shift function. It is then stated that $ \spr{h} \gge nm $.
+    where $ T \colon \N_0 \to \N_0 $ is a fixed function, referred to as the \textbf{argument shift function.} It is then stated that $ \spr{h} \gge nm $.
 \end{proposition}
 \begin{proof}
     Assume that $ k_1 \ne k_2 $ and $ h(k_1) = h(k_2) $. Since $ h $ returns an ordered list, the equality of lists is equivalent to the equality of all their corresponding elements:
-    \begin{gather}
+    \begin{gather*}
         f(\lui{n}k_1) = f(\lui{n}k_2),\label{one}\\
         g(\lli{n}k_1 + T(\lui{n}k_1)) = g(\lli{n}k_2 + T(\lui{n}k_2)).\label{two}
-    \end{gather}
+    \end{gather*}
     Since $ f $ is injective on $ (n) $, we see that $ \lui{n}k_1 = \lui{n}k_2 $. Consequently, it follows from $ k_1 \ne k_2 $ that $ \lli{n}k_1 \ne \lli{n}k_2 $ and $ \lli{n}k_1 + T(\lui{n}k_1) \ne \lli{n}k_2 + T(\lui{n}k_2) $. We can then proceed to utilize the definition of spread for the function $ g $:
     \begin{align*}
     | \lli{n}k_1 + T(\lui{n}k_1) - \lli{n}k_2 - T(\lui{n}k_2) | &\gge m,\\[1mm]
     | \lli{n}k_1 - \lli{n}k_2 | &\gge m,\\[1mm]
     \left| \frac{k_1 - \lui{n}k_1}{n} - \frac{k_2 - \lui{n}k_2}{n} \right| &\gge m,\\[1mm]
     \left| \frac{k_1 - k_2}{n} \right| &\gge m,\\[1mm]
-    | k_1 - k_2 | &\gge nm.
+    | k_1 - k_2 | &\gge nm,
     \end{align*}
+    q.e.d.
 \end{proof}
 
 With this proposition at hand, we have a natural way of extending the definition of the choice function:
@@ -178,23 +182,23 @@ The choice function gives us a way to enumerate all possible ways to select a su
 \end{tabular}
 \end{center}
 
-There is, however, a serious problem. This selection method does not guarantee that the chosen 10 symbols will contain lower-case and upper-case characters, as well as digits and spacial symbols, all at the same time. Since the choice function is bijective, there is a key that produces the combination \texttt{"djaktpsnei"}, which will not be accepted as a password in many placed, because it contains only one category of symbols. Fortunately, there is a solution.
+There is, however, a serious problem. This selection method does not guarantee that the chosen 10 symbols will contain lower-case and upper-case characters, as well as digits and spacial symbols, all at the same time. Since the choice function is bijective, there is a key that produces the combination \texttt{"djaktpsnei"}, which will not be accepted as a password in many places, because it contains only one category of symbols. Fortunately, there is a solution.
 
 \subsection{Elevating the choice function}
 
 \begin{definition}
-    Let $ \alpha $ be the list of pairs $ (E_i, m_i) $, where $ E_i $ are sources, $ |E_i| = n_i $, $ m_i \lle n_i $, for $ i \in (N) $. The \emph{elevated choice function} corresponding to these data is defined for a key $ k \in \N_0 $ by means of the following recursion:
-    \[ \CC(\alpha, k) = [\C^{m_0}(E_0, \lui{n_0}k)] \dop \CC(\alpha \wo 0,\ \lli{n_0}k + T(\lui{n_0}k)), \]
-    where $ T $ is an argument shift function. The base of the recursion is given when $ \alpha $ is empty, in which case $ \CC([], k) = [] $. Otherwise, for every key $ k $, its image is an element of
-    \[ \cod{\ \CC(\alpha, -)} = [[E_0]_{m_0}, [E_1]_{m_1}, ..., [E_N]_{m_N}]. \]
-    In this context, the list $ \alpha $ will be called a \emph{source configuration}.
+    Let $ \conf $ be the list of pairs $ (E_i, m_i) $, where $ E_i $ are sources, $ |E_i| = n_i $, $ m_i \lle n_i $, for $ i \in (N) $. The \emph{elevated choice function} corresponding to these data is defined for a key $ k \in \N_0 $ by means of the following recursion:
+    \[ \CC(\conf, k) = [\C^{m_0}(E_0, \lui{n_0}k)] \dop \CC(\conf \wo 0,\ \lli{n_0}k + T(\lui{n_0}k)), \]
+    where $ T $ is an argument shift function. The base of the recursion is given when $ \conf $ is empty, in which case $ \CC([], k) = [] $. Otherwise, for every key $ k $, its image is an element of
+    \[ \cod{\ \CC(\conf, -)} = [[E_0]_{m_0}, [E_1]_{m_1}, ..., [E_N]_{m_N}]. \]
+    In this context, the list $ \conf $ will be called a \emph{source configuration}.
 \end{definition}
 
-In other words, the elevated choice function is a "mapping" of the choice function over a list of sources, it selects a sub-list from every source and then composes the results in a list, which we will call a \emph{multiselection}. A trivial application of proposition \ref{map} shows that the spread of $ \CC(\alpha, -) $ is at least
+In other words, the elevated choice function is a "mapping" of the choice function over a list of sources, it selects a sub-list from every source and then composes the results in a list, which we will call a \emph{multiselection}. A trivial application of proposition \ref{map} shows that the spread of $ \CC(\conf, -) $ is at least
 \begin{equation}\label{elspr}
     \prod\limits_{i = 0}^{N-1} \spr{\C^{m_i}(E_i, -)} = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)!
 \end{equation}
-where $ E_i $, $ n_i $, and $ m_i $ compose the configuration $ \alpha $. In fact, due to the rule of product in combinatorics, we see that the expression in (\ref{elspr}) directly corresponds to the number of possible multiselections from $ \alpha $, or $ \#^{\CC}(\alpha) $ for convenience. Therefore, $ \CC(\alpha, -) $ is bijective on the interval $ \left(\#^{\CC}(\alpha)\right) $ and periodic with period $ \#^{\CC}(\alpha) $.
+where $ E_i $, $ n_i $, and $ m_i $ compose the configuration $ \conf $. In fact, due to the rule of product in combinatorics, we see that the expression in (\ref{elspr}) directly corresponds to the number of possible multiselections from $ \conf $, or $ \#^{\CC}(\conf) $ for convenience. Therefore, $ \CC(\conf, -) $ is bijective on the interval $ \left(\#^{\CC}(\conf)\right) $ and periodic with period $ \#^{\CC}(\conf) $.
 
 This solves the problem with lacking symbol categories --- now we can separate upper-case letters, lower-case letters, numbers, etc. into different sources and apply the elevated choice function, specifying the number of symbols from each source. However, there are two issues arising:
 
@@ -205,78 +209,182 @@ This solves the problem with lacking symbol categories --- now we can separate u
 
 We will solve one problem at a time.
 
-\subsection{The hash function}
+\subsection{The merge function}
+
+\begin{proposition}\label{comp}
+    Let $ f \colon A \times \N_0 \to B $ and $ g \colon B \times \N_0 \to C $ be functions such that $ \spr{f} \gge n $ and $ \spr{g} \gge m $, where the spread is taken with respect to the second argument. Assume also that $ g $ is \textbf{absolutely injective} with respect to the first argument, that is,
+    \[ \forall (b_1, k_1), (b_2, k_2) \in B \times \N_0: \ \ g(b_1, k_1) = g(b_2, k_2) \implies b_1 = b_2. \] 
+    Define the function $ h \colon A \times \N_0 \to C $ by
+    \[ h(a, k) = g(f(a, \lui{n}k), \lli{n}k + T(\lui{n}k)), \]
+    where $ T $ is an argument shift function. It is stated that $ \spr{h} \gge nm $ with respect to $ k $.
+\end{proposition}
+\begin{proof}
+    Let an element $ a \in A $ and let $ k_1, k_2 \in \N_0 $ be distinct numbers such that $ h(a, k_1) = h(a, k_2) $. That implies,
+    \[ g(f(a, \lui{n}k_1), \lli{n}k_1 + T(\lui{n}k_1)) = g(f(a, \lui{n}k_2), \lli{n}k_2 + T(\lui{n}k_2)). \]
+    Since $ g $ is absolutely injective, we see that $ f(a, \lui{n}k_1) = f(a, \lui{n}k_2) $, which means that $ \lui{n}k_1 = \lui{n}k_2 $, since $ f $ is injective on $ (n) $. Now, since the first argument of $ g $ in the equation above is the same, we can use the definition of spread for the function $ g $:
+    \begin{align*}
+        |\lli{n}k_1 + T(\lui{n}k_1) - \lli{n}k_2 - T(\lui{n}k_2)| &\gge m,\\[1mm]
+        | \lli{n}k_1 - \lli{n}k_2 | &\gge m,\\[1mm]
+        \left| \frac{k_1 - \lui{n}k_1}{n} - \frac{k_2 - \lui{n}k_2}{n} \right| &\gge m,\\[1mm]
+        \left| \frac{k_1 - k_2}{n} \right| &\gge m,\\[1mm]
+        |k_1 - k_2| &\gge nm,
+    \end{align*}
+    q.e.d.
+\end{proof}
 
 \begin{definition}
-    Let $ \alpha $ be a source configuration consisting of pairs $ (E_i, m_i) $ for $ i \in (N) $. For two numbers $ k_1, k_2 \in \N_0 $, define their \emph{hash} by the following expression:
-    \[ \H(\alpha, k_1, k_2) = \C^{\sum m_i}\left(\dop\CC(\alpha, k_1), k_2\right), \]
-    where $ \dop \colon [[A]] \to [A] $ is list concatenation. This definition can be re-written in a more readable way by defining the \emph{shuffle function} $ \S(E, k) $ as $ \C^{|E|}(E, k) $ and letting the source configuration $ \alpha $ be the varying argument:
-    \[ \H(-, k_1, k_2) = \S(-, k_2) \circ (\dop) \circ \CC(-, k_1). \]
-    The hash function makes a selection from every source in the configuration, then concatenates all these selections, and finally reshuffles the resulting source. The two keys $ k_1 $ and $ k_2 $ used to make a selection will be called the \emph{choice key} and the \emph{shuffle key} respectively.
+    Let $ E_1 $, $ E_2 $ be two sources, $ m_1, m_2 $ be numbers such that $ m_1 \lle |E_1| $ and $ m_2 \lle |E_2| $. Define the \emph{merge function of order 2},
+    \[ \M^2 \colon [E_1]_{m_1} \times [E_2]_{m_2} \times \N_0 \to [E_1 \cup E_2]_{m_1 + m_2}, \]
+    with the following recursive procedure:
+
+    For $ \alpha \in [E_1]_{m_1},\ \beta \in [E_2]_{m_2},\ k \in \N_0 $ consider two cases:
+    \begin{enumerate}
+        \item Either $ \alpha $ or $ \beta $ is empty, that is, $ m_1 = 0 $ or $ m_2 = 0 $.
+            Then set $ \M^2(\alpha, \beta, k) $ to be equal to $ \alpha \dop \beta $.
+        \item Neither $ \alpha $ nor $ \beta $ are empty.
+            Then we will assume that the merge function is already defined for $ (\alpha \wo 0,\ \beta,\ -) $ and $ (\alpha,\ \beta \wo 0,\ -) $. Let $ s_1 $ be the spread of the function $ \M^2(\alpha \wo 0,\ \beta,\ -) $ and $ s_2 $ be the spread of $ \M^2(\alpha,\ \beta \wo 0,\ -) $. Finally, denote the remainder $ \lui{(s_1 + s_2)}k $ by $ k' $. The merge of $ \alpha $ and $ \beta $ with key $ k $ is defined as
+            \[ \M^2(\alpha, \beta, k) = \begin{cases}
+                [\alpha \elt 0] \dop \M^2(\alpha \wo 0,\ \beta,\ k' + T(k')), \ \ k' < s_1,\\
+                [\beta \elt 0] \dop \M^2(\alpha,\ \beta \wo 0,\ k' + T(k')), \ \ \text{otherwise},\\
+            \end{cases} \]
+            where $ T $ is an argument shift function.
+    \end{enumerate}
 \end{definition}
 
-Note that the term "hash" is used loosely here, as it may not adhere to the formal definition of a cryptographic hash. Still, such naming is somewhat justified, given that $ \H $ is designed to be a uniformly distributed encryption mapping that is very hard to invert. We will now discuss the properties of $ \H(\alpha, k_1, k_2) $ for a given source configuration $ \alpha $:
+The merge function takes two lists and combines them together in one, in such a way that the order of elements in each of the two lists is not disturbed. For example, the merge of $ [1,2,3] $ and $ [a,b,c] $ with a certain key could be $ [1,a,b,2,c,3] $. We will now derive some properties of $ \M^2 $. If $ s_1 $ and $ s_2 $ are what they are in the above definition, we immediately see that $ \M^2(\alpha, \beta, -) $ is periodic with period $ s_1 + s_2 $, since it depends only on $ k' = \lui{(s_1 + s_2)}k $. Moreover, it is clear from the definition that $ \M^2(\alpha, \beta, -) $ is injective on the interval $ (s_1 + s_2) $, which means that its spread is equal exactly to $ s_1 + s_2 $:
+\begin{equation}\label{recspr}
+    \spr{\M^2(\alpha, \beta, -)} = \spr{\M^2(\alpha \wo 0,\ \beta,\ -)} + \spr{\M^2(\alpha,\ \beta \wo 0,\ -)}.
+\end{equation}
+From this recursive relationship we can derive this useful proposition:
 
-\begin{itemize}
-    \item \textbf{Injectivity.}
-        $ \H $ is injective with respect to the choice key $ k_1 $ on the interval from zero up to
-        \[ \#^{\CC}(\alpha) = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \]
-        This is because $ \CC(\alpha, -) $ is injective on this interval, and $ \S(-, k_2) $ is injective as well. With respect to the shuffle key $ k_2 $, the hash function is injective on the spread of $ \S $, which is
-        \[ \spr{\S(E, -)} = \#^{|E|}(E) = (|E| \mid |E|)! = |E|! = \left( \sum\nolimits_{i = 1}^{N-1} m_i \right)! \]
-        Therefore, the number of relevant key pairs for the hash function, denoted by $ \#^{(k_1, k_2)}(\alpha) $:
-        \[ \#^{(k_1, k_2)}(\alpha) = \#^{\S}(\alpha) \cdot \#^{\CC}(\alpha) = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \left( \sum\nolimits_{i = 1}^{N-1} m_i \right)! \]
-    \item \textbf{Overlapping.}
-        However, this number does not equal the number of all possible values of $ \H $. When applying $ \S $ after $ \CC $, we are changing the order of elements in each source twice. That is, the information about the order of these elements, stored in the output of $ \CC $, is lost after this output is concatenated and reshuffled with $ \S $. Since there are $ m_i! $ ways to reorder every sub-list chosen by $ \CC $ from $ E_i $, the amount of lost information accounts for a total of $ \prod_{i = 0}^{N-1} (m_i!) $, which will be denoted by $ \#^{\cap}(\alpha) $. It is the number of pairs $ (k_1, k_2) $ that produce the exact same hash. Hence, we see that the number of possible outputs of the hash function, given a configuration $ \alpha $, is
-        \[ \#^{\H}(\alpha) = \frac{\#^{(k_1,k_2)}}{\#^{\cap}(\alpha)} = \frac{\prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \left(\sum\nolimits_{i = 0}^{N-1} m_i\right)!}{\prod\limits_{i = 0}^{N-1} (m_i)!} = \prod\limits_{i = 0}^{N-1} {{n_i}\choose{m_i}} \cdot \left(\sum\nolimits_{i = 0}^{N-1} m_i\right)! \] 
-\end{itemize}
+\begin{proposition}
+    Let $ \alpha $ and $ \beta $ be elements of $ [E_1]_{m_1} $ and $ [E_2]_{m_2} $ respectively. Then the spread of the corresponding merge function, with respect to the key $ k $, is equal to $ (m_1 + m_2)!/(m_1! \cdot m_2!) $.
+\end{proposition}
+\begin{proof}
+    We will conduct a proof by induction over the sum $ m_1 + m_2 $. The base case is provided by the situation when either $ m_1 $ or $ m_2 $ is zero. Now assume that $ m_1, m_2 \ne 0 $ and for all similar pairs with sum $ m_1 + m_2 - 1 $ the statement is proven. Recall equation \ref{recspr}, which we can now transform due to the induction hypothesis:
+    \begin{gather*}
+        \spr{\M^2(\alpha, \beta, -)} = \frac{((m_1 - 1) + m_2)!}{(m_1 - 1)! \cdot m_2!} + \frac{(m_1 + (m_2 - 1))!}{m_1! \cdot (m_2 - 1)!} = \\[3mm]
+        = \frac{m_1 \cdot (m_1 + m_2 - 1)! + m_2 \cdot (m_1 + m_2 - 1)!}{m_1! \cdot m_2!} = \frac{(m_1 + m_2)!}{m_1! \cdot m_2!},
+    \end{gather*}
+    voila.
+\end{proof}
 
-With respect to each of the two keys, $ \H $ is an injective function, but in combination they clash together and, to a degree, encrypt each other, erasing the trace to the original pair.
+Using some combinatorial logic, we can see that the number $ (m_1 + m_2)!/(m_1! \cdot m_2!) $ corresponds to the number of all possible ways to merge the lists $ \alpha $ and $ \beta $, denoted by $ \#^{\M}(\alpha, \beta) $. It means that the function $ \M^2(\alpha, \beta, -) $ is in fact surjective, and therefore bijective, on the interval from zero to its spread. Now we will, as usual, expand its definition beyond only two lists.
 
-\subsection{Producing different hashes with the same private keys}
+\begin{definition}
+    Let $ \overline{\alpha} = [\alpha_0, \alpha_1, ..., \alpha_{N-1}] $ be a list of lists, where $ N \gge 2 $ and $ \alpha_i \in [E_i]_{m_i} $. Define the \emph{merge function of order $ N $} recursively as follows:
+    \[ \M^N(\overline{\alpha}, k) = \begin{cases}
+        \M^2(\alpha_0, \alpha_1, k), \ \ N = 2,\\
+        \M^2(\alpha_0,\ \M^{N-1}(\overline{\alpha} \wo 0, \ \lui{s}k),\ \lli{s}k + T(\lui{s}k)), \ \ N > 2,
+    \end{cases} \]
+    where $ s $ is the spread of the function $ \M^{N-1}(\overline{\alpha} \wo 0, \ -) $, and $ T $ is an argument shift function.
+\end{definition}
 
-The premise of this entire discussion was that one requires many passwords for different purposes. Right now, the only way is to create a new choice-shuffle pair for every new occasion. You may as well try to remember the hashes themselves. This is where the public key comes into play. The public, denoted $ p $, is an integer number defined by the situation and available to the public. We will assume that it is the name of the website for which the password is required, like \texttt{"google"}, for example, converted into a number by treating the characteers in the string as digits in base-128. This number acts on the choice private key by shifting it modulo $ \#^{\CC}(\alpha) $:
-\[ k_1' = \lui{\#^{\CC}(\alpha)}(k_1 + p), \] 
-and then this new choice key is plugged into the hash function along with the shuffle key. Due to the injectivity of $ \H $ with respect to $ k_1 $, we see that different public keys produce different output hashes, as long as they remain in the interval $ \left( \#^{\CC}(\alpha) \right) $. Its influence on $ k_1 $ is simple and predictable, but it doesn't have to be complex, since the public key is not responsible for any encryption. Instead it is designed to be easily remembered.
+\begin{exercise}
+    Using induction and proposition \ref{comp}, prove the following result for the spread of the merge function:
+    \begin{equation}\label{sprm}
+        \spr{\M^N(\overline{\alpha}, -)} = \frac{\left( \sum\nolimits_{i = 0}^{N-1} m_i \right)!}{\prod\nolimits_{i = 0}^{N-1} m_i!},\\[2mm]
+    \end{equation}
+    where $ \overline{\alpha} = [\alpha_0, \alpha_1, ..., \alpha_{N-1}] \in [[E_0]_{m_0}, [E_1]_{m_1}, ..., [E_{N-1}]_{m_{N-1}}] $.
+\end{exercise}
 
-\subsection{Counting ages of the Universe}
+\subsection{Merging the multiselection}
 
-In this subsection, we will use a specific source configuration $ \alpha $, particularly the following:
+\begin{definition}
+    Let $ \conf $ be a source configuration of pairs $ (E_i, m_i) $ for $ i \in (N) $, and let $ k $ be a number from $ \N_0 $. We define the \emph{merged choice function}, corresponding to $ \conf $, as follows:
+    \[ \M\C(\conf, k) = \M^N\left(\CC(\conf, \lui{n}k),\ \lli{n}k + T(\lui{n}k)\right), \]
+    where $ n $ is the spread of the elevated choice function $ \CC(\conf, -) $, while $ T $ is a fixed argument shift function.
+\end{definition}
 
-\begin{center}
-\def\arraystretch{1.2}
-\begin{tabular}{l|l|l|l}\ttfamily
-    $ i $ & $ E_i $ & $ n_i $ & $ m_i $\\
-    \hline
-    0 & \ttfamily"ckapzfitqdxnwehrolmbyvsujg" & 26 & 10\\
-    1 & \ttfamily"RQLIANBKJYVWPTEMCZSFDOGUHX" & 26 & 10\\
-    2 & \ttfamily"=!*@?\$\%\#\&-\^{}+"        & 12 & 5\\
-    3 & \ttfamily"1952074386"                 & 10 & 5\\
-\end{tabular}
-\end{center}
+In other words, the merged choice function selects $ N $ lists from the configuration via $ \CC $, and then merges them together using $ \M^N $. We have therefore solved our first problem --- the password resulting from this new hash function will have different categories of characters mixed together. What is more important, there is no information lost in the process, which is illustrated by the following proposition:
 
-Therefore, every password produced with this configuration will contain a total of 30 symbols, 10, 10, 5 and 5 from their respective categories.
+\begin{proposition}
+    Let $ \conf $ be a configuration of length $ N $. The following lower bound takes place for the spread of the merged choice function:
+    \begin{equation}\label{sprmc}
+        \spr{\M\C(\conf, -)} \gge \spr{\CC(\conf, -)} \cdot \spr{\M^N(\overline{\alpha}, -)} = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \frac{\left( \sum\nolimits_{i = 0}^{N-1} m_i \right)!}{\prod\nolimits_{i = 0}^{N-1} m_i!},
+    \end{equation}
+    where $ \overline{\alpha} $ is the multiselection arising from the application of $ \CC $, while $ n_i $ are the lengths of sources $ E_i $ in the configuration $ \conf $.
+\end{proposition}
+\begin{proof}
+    Since the merge function $ \M^N $ preserves the order of the lists it merges, we can see that it is absolutely injective with respect to its first argument, $ \overline{\alpha} $. Indeed, no matter how the multiselection $ \overline{\alpha} $ is merged, all elements of, say, $ E_0 $, can be read from the resulting merged list in the order that they were originally. In other words, the list $ \alpha_0 \in \overline{\alpha} $ can be reconstructed from the output of $ \M^N(\overline{\alpha}, k) $ for all $ k $. And so can $ \alpha_1, \alpha_2, $ etc. Here we are actively using the fact that all elements across all sources $ E_0, E_1, ..., E_{N-1} $ are distinct. Now that the absolute injectivity of $ \M^N $ has been established, the present statement immediately follows from an application of proposition \ref{comp}.
+\end{proof}
 
-Now, let's imagine that you have inserted your two private keys into the function and got a password out of it. A sophisticated hacker sets their mind to crack your password whatever it takes. They are very smart and they have a supercomputer that can perform 1,000,000,000,000 password checks in a second, or one picosecond to check one password or key. What's more, they got their hands on the hash function and the configuration you use, so they can try to reverse-engineer your password.
+It can once again be shown using combinatorics, that the expression in (\ref{sprmc}) is, in fact, the total number of ways to choose a multiselection from $ \conf $ and merge it. Therefore, we conclude that the function $ \M\C(\conf, -) $ is bijective on the interval from zero to its spread, and therefore periodic with the period of its spread.
 
-First, they read into the configuration and see the structure of the password. They decide to brute-force it by checking every relevant combination of 30 symbols. Well, they will have to check $ \#^{\H}(\alpha) $ combinations, which in our case equals exactly
-\[ \#^{\H}(\alpha) = 1,493,683,548,205,755,958,753,683,829,702,969,075,433,472,000,000,000. \] 
+\subsection{Double encryption}
 
-Cracking it would take the supercomputer about $ 47,331,975,441,914,340,970,572,896,272,384 $ years, or about 3 billion of millions of millions of ages of the Universe.\\
+However, we still have one problem left: our current hash function is bijective, and it can be reverse-engineered relatively easily.
 
-Okay, thinks the hacker, no luck. They dig a little deeper into the algorithm and find that your password depens on two private keys. The number of all pairs of such keys is
-
-\[
-\#^{(k_1,k_2)}(\alpha) = \begin{array}[t]{l}
-    283,235,154,137,060,638,511,193,623,530,464,\\
-    898,307,082,375,546,273,792,000,000,000,000,000
-\end{array}
-\]
-
-This one is going to take billions of billions times longer than the previous one.\\
-
-Okay, thinks the hacker, the night is young. They are able to get their hands on one of your 30-symbol passwords because of a security leak on the website you were registered to. They have also dug ears deep into the hash function and understood how it works to the tiniest detail. Now, they want to retrieve your private keys to be able to generate your passwords to all other websites and services you use. They see that your password starts with a \texttt{'W'}. They know it was shuffled from some other position by the shuffle function, $ \S(-, k_2) $, but they don't know what the password was before the shuffling. What they do know is that your password is produced by
-\[ \#^{\cap}(\alpha) = 189,621,927,936,000,000 \]
-different $ (k_1, k_2) $ pairs. The hacker now has essentially two options:
+% \begin{definition}
+%     Let $ \conf $ be a source configuration consisting of pairs $ (E_i, m_i) $ for $ i \in (N) $. For two numbers $ k_1, k_2 \in \N_0 $, define their \emph{hash} by the following expression:
+%     \[ \H(\conf, k_1, k_2) = \C^{\sum m_i}\left(\dop\CC(\conf, k_1), k_2\right), \]
+%     where $ \dop \colon [[A]] \to [A] $ is list concatenation. This definition can be re-written in a more readable way by defining the \emph{shuffle function} $ \S(E, k) $ as $ \C^{|E|}(E, k) $ and letting the source configuration $ \conf $ be the varying argument:
+%     \[ \H(-, k_1, k_2) = \S(-, k_2) \circ (\dop) \circ \CC(-, k_1). \]
+%     The hash function makes a selection from every source in the configuration, then concatenates all these selections, and finally reshuffles the resulting source. The two keys $ k_1 $ and $ k_2 $ used to make a selection will be called the \emph{choice key} and the \emph{shuffle key} respectively.
+% \end{definition}
+%
+% Note that the term "hash" is used loosely here, as it may not adhere to the formal definition of a cryptographic hash. Still, such naming is somewhat justified, given that $ \H $ is designed to be a uniformly distributed encryption mapping that is very hard to invert. We will now discuss the properties of $ \H(\conf, k_1, k_2) $ for a given source configuration $ \conf $:
+%
+% \begin{itemize}
+%     \item \textbf{Injectivity.}
+%         $ \H $ is injective with respect to the choice key $ k_1 $ on the interval from zero up to
+%         \[ \#^{\CC}(\conf) = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \]
+%         This is because $ \CC(\conf, -) $ is injective on this interval, and $ \S(-, k_2) $ is injective as well. With respect to the shuffle key $ k_2 $, the hash function is injective on the spread of $ \S $, which is
+%         \[ \spr{\S(E, -)} = \#^{|E|}(E) = (|E| \mid |E|)! = |E|! = \left( \sum\nolimits_{i = 1}^{N-1} m_i \right)! \]
+%         Therefore, the number of relevant key pairs for the hash function, denoted by $ \#^{(k_1, k_2)}(\conf) $:
+%         \[ \#^{(k_1, k_2)}(\conf) = \#^{\S}(\conf) \cdot \#^{\CC}(\conf) = \prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \left( \sum\nolimits_{i = 1}^{N-1} m_i \right)! \]
+%     \item \textbf{Overlapping.}
+%         However, this number does not equal the number of all possible values of $ \H $. When applying $ \S $ after $ \CC $, we are changing the order of elements in each source twice. That is, the information about the order of these elements, stored in the output of $ \CC $, is lost after this output is concatenated and reshuffled with $ \S $. Since there are $ m_i! $ ways to reorder every sub-list chosen by $ \CC $ from $ E_i $, the amount of lost information accounts for a total of $ \prod_{i = 0}^{N-1} (m_i!) $, which will be denoted by $ \#^{\cap}(\conf) $. It is the number of pairs $ (k_1, k_2) $ that produce the exact same hash. Hence, we see that the number of possible outputs of the hash function, given a configuration $ \conf $, is
+%         \[ \#^{\H}(\conf) = \frac{\#^{(k_1,k_2)}}{\#^{\cap}(\conf)} = \frac{\prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \left(\sum\nolimits_{i = 0}^{N-1} m_i\right)!}{\prod\limits_{i = 0}^{N-1} (m_i)!} = \prod\limits_{i = 0}^{N-1} {{n_i}\choose{m_i}} \cdot \left(\sum\nolimits_{i = 0}^{N-1} m_i\right)! \] 
+% \end{itemize}
+%
+% With respect to each of the two keys, $ \H $ is an injective function, but in combination they clash together and, to a degree, encrypt each other, erasing the trace to the original pair.
+%
+% \subsection{Producing different hashes with the same private keys}
+%
+% The premise of this entire discussion was that one requires many passwords for different purposes. Right now, the only way is to create a new choice-shuffle pair for every new occasion. You may as well try to remember the hashes themselves. This is where the public key comes into play. The public, denoted $ p $, is an integer number defined by the situation and available to the public. We will assume that it is the name of the website for which the password is required, like \texttt{"google"}, for example, converted into a number by treating the characteers in the string as digits in base-128. This number acts on the choice private key by shifting it modulo $ \#^{\CC}(\conf) $:
+% \[ k_1' = \lui{\#^{\CC}(\conf)}(k_1 + p), \] 
+% and then this new choice key is plugged into the hash function along with the shuffle key. Due to the injectivity of $ \H $ with respect to $ k_1 $, we see that different public keys produce different output hashes, as long as they remain in the interval $ \left( \#^{\CC}(\conf) \right) $. Its influence on $ k_1 $ is simple and predictable, but it doesn't have to be complex, since the public key is not responsible for any encryption. Instead it is designed to be easily remembered.
+%
+% \subsection{Counting ages of the Universe}
+%
+% In this subsection, we will use a specific source configuration $ \conf $, particularly the following:
+%
+% \begin{center}
+% \def\arraystretch{1.2}
+% \begin{tabular}{l|l|l|l}\ttfamily
+%     $ i $ & $ E_i $ & $ n_i $ & $ m_i $\\
+%     \hline
+%     0 & \ttfamily"ckapzfitqdxnwehrolmbyvsujg" & 26 & 10\\
+%     1 & \ttfamily"RQLIANBKJYVWPTEMCZSFDOGUHX" & 26 & 10\\
+%     2 & \ttfamily"=!*@?\$\%\#\&-\^{}+"        & 12 & 5\\
+%     3 & \ttfamily"1952074386"                 & 10 & 5\\
+% \end{tabular}
+% \end{center}
+%
+% Therefore, every password produced with this configuration will contain a total of 30 symbols, 10, 10, 5 and 5 from their respective categories.
+%
+% Now, let's imagine that you have inserted your two private keys into the function and got a password out of it. A sophisticated hacker sets their mind to crack your password whatever it takes. They are very smart and they have a supercomputer that can perform 1,000,000,000,000 password checks in a second, or one picosecond to check one password or key. What's more, they got their hands on the hash function and the configuration you use, so they can try to reverse-engineer your password.
+%
+% First, they read into the configuration and see the structure of the password. They decide to brute-force it by checking every relevant combination of 30 symbols. Well, they will have to check $ \#^{\H}(\conf) $ combinations, which in our case equals exactly
+% \[ \#^{\H}(\conf) = 1,493,683,548,205,755,958,753,683,829,702,969,075,433,472,000,000,000. \] 
+%
+% Cracking it would take the supercomputer about $ 47,331,975,441,914,340,970,572,896,272,384 $ years, or about 3 billion of millions of millions of ages of the Universe.\\
+%
+% Okay, thinks the hacker, no luck. They dig a little deeper into the algorithm and find that your password depens on two private keys. The number of all pairs of such keys is
+%
+% \[
+% \#^{(k_1,k_2)}(\conf) = \begin{array}[t]{l}
+%     283,235,154,137,060,638,511,193,623,530,464,\\
+%     898,307,082,375,546,273,792,000,000,000,000,000
+% \end{array}
+% \]
+%
+% This one is going to take billions of billions times longer than the previous one.\\
+%
+% Okay, thinks the hacker, the night is young. They are able to get their hands on one of your 30-symbol passwords because of a security leak on the website you were registered to. They have also dug ears deep into the hash function and understood how it works to the tiniest detail. Now, they want to retrieve your private keys to be able to generate your passwords to all other websites and services you use. They see that your password starts with a \texttt{'W'}. They know it was shuffled from some other position by the shuffle function, $ \S(-, k_2) $, but they don't know what the password was before the shuffling. What they do know is that your password is produced by
+% \[ \#^{\cap}(\conf) = 189,621,927,936,000,000 \]
+% different $ (k_1, k_2) $ pairs. The hacker now has essentially two options:
 
 
 

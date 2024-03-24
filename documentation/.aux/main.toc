@@ -3,6 +3,6 @@
 \contentsline {subsection}{\numberline {2.1}Preliminary terminology and notation}{3}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}Enumerating list selections}{4}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Elevating the choice function}{6}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}The hash function}{7}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Producing different hashes with the same private keys}{8}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}Counting ages of the Universe}{9}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.4}The merge function}{7}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Merging the multiselection}{9}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Double encryption}{10}{subsection.2.6}%
