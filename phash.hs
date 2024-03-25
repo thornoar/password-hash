@@ -92,6 +92,7 @@ chooseOrdered (src, m) key  = curElt : chooseOrdered (filter (\e -> e /= curElt)
 chooseSpread :: (Integer, Integer) -> Integer
 chooseSpread (n, m) = factorial' n m
 
+-- Combine two lits into one, preserving the order of elements in each one
 mergeTwoLists :: (Shifting a) => [a] -> [a] -> Integer -> [a]
 mergeTwoLists [] lst2 _ = lst2
 mergeTwoLists lst1 [] _ = lst1
@@ -109,6 +110,7 @@ mergeTwoLists lst1 lst2 key
     spr2 = mergeTwoBoundary (len lst1) (len lst2 - 1)
     curKey = mod key (spr1 + spr2)
 
+-- Extend the previous function on an arbitrary list of lists
 mergeLists :: (Shifting a) => [[a]] -> Integer -> [a]
 mergeLists [] _ = []
 mergeLists [l] _ = l
@@ -126,9 +128,6 @@ getChoiceAndMerge = composeHashing'
     (mapHashing chooseOrdered (chooseSpread . dropElementInfo))
     (product . map (chooseSpread . dropElementInfo))
     mergeLists
-
--- getChoiceAndMergeSpread :: [(Integer, Integer)] -> Integer
--- getChoiceAndMergeSpread amts = ((product . map chooseSpread) amts) * (mergeListsSpread $ map snd amts)
 
 -- Get a hash sequence from a key and a source configuration
 getHash :: (Eq a, Shifting a) => [([a], Integer)] -> Integer -> Integer -> [a]
@@ -169,7 +168,6 @@ numberOfPrivateShuffleKeys = factorial . sum
 -- Approximately [this] many keys will produce the same hash
 numberOfRepetitions :: [Integer] -> Integer
 numberOfRepetitions = numberOfPrivateShuffleKeys
--- numberOfRepetitions = product . map factorial
 
 -- Number of public keys that are guaranteed to produce distinct hashes
 numberOfPublicKeys :: [(Integer, Integer)] -> Integer
@@ -192,13 +190,18 @@ maxLengthOfPublicKey amts = getBiggestPower 0 $ (len . show) (numberOfPublicKeys
         | (get128PowerLength $ guess + 1) < bound = getBiggestPower (guess + 1) bound
         | otherwise = guess + 1
 
+-- time to check one password, in picoseconds
 timeToCheck :: Double
 timeToCheck = 1.0
+
+-- number of picoseconds in a year
 psInYear :: Double
 psInYear = 3.15576E19
+
 ageOfUniverse :: Double
 ageOfUniverse = 13.787E9
 
+-- returns the time to conduct [input] operations, both in years and in ages of the Universe
 timeToCrack :: Integer -> (Integer, Integer)
 timeToCrack num = (floor inYears, floor inAgesOfUniverse)
     where
@@ -213,24 +216,23 @@ timeToCrack num = (floor inYears, floor inAgesOfUniverse)
 helpAction :: String -> [(Integer, Integer)] -> IO ()
 helpAction cmd amts
     | cmd == "--help" || cmd == "-h" = do
-        putStrLn "usage: phash [--OPTION [CONFIGURATION] | PUBLIC PRIVATE [CONFIGURATION]]"
+        putStrLn "usage: phash [--OPTION [CONFIGURATION] | PUBLIC CHOICE SHUFFLE [CONFIGURATION]]"
         putStrLn ""
         putStrLn "options:"
         putStrLn "  -h, --help                      show this help message and exit"
-        putStrLn "  -a, --hashes [CONFIGURATION]    print the theoretical number of hashes"
-        putStrLn "  -k, --keys [CONFIGURATION]      print the guaranteed number of keys with distinct hashes"
+        putStrLn "  -n, --numbers [CONFIGURATION]   print the combinatorial information about the configuration"
         putStrLn "  -t, --times [CONFIGURATION]     calculate the number of years required to crack your passwords"
         putStrLn ""
         putStrLn "arguments:"
         putStrLn "  [CONFIGURATION] stands for a list of string-number pairs that defines the synbols used in hashes"
         putStrLn "  PUBLIC stands for public key, a memorable string indicative of the password destination"
-        putStrLn "  PRIVATE stands for private key, a large integer known only to the user"
+        putStrLn "  CHOICE stands for choice private key, one of 2 private keys known only to the user"
+        putStrLn "  SHUFFLE stands for shuffle private key, used to encrypt the choice key"
         putStrLn ""
         putStrLn "default configuration:"
         putStrLn $ "  " ++ (show defaultConfiguration)
-    | cmd == "--hashes" || cmd == "-a" = do
+    | cmd == "--numbers" || cmd == "-n" = do
         putStrLn $ "total theoretical number of hashes:         " ++ (show $ numberOfHashes amts)
-    | cmd == "--keys" || cmd == "-k" = do
         putStrLn $ "number of choice keys:                      " ++ (show $ numberOfPrivateChoiceKeys amts)
         putStrLn $ "number of shuffle keys:                     " ++ (show $ numberOfPrivateShuffleKeys $ map snd amts)
         putStrLn $ "number of key pairs with the same hash:     " ++ (show $ numberOfRepetitions $ map snd amts)
