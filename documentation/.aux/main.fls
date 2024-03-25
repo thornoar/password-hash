@@ -1454,11 +1454,16 @@ INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-fin
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/tfm/public/amsfonts/euler/eufm7.tfm
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/tfm/public/tempora/Tempora-Regular-tlf-t1.tfm
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/tfm/public/tempora/Tempora-Regular-tlf-t1.tfm
+INPUT ./figures/hash.pdf
+INPUT ./figures/hash.pdf
+INPUT figures/hash.pdf
+INPUT ./figures/hash.pdf
+INPUT ./figures/hash.pdf
 INPUT .aux/main.aux
-INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolS.enc
-INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolD.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolF.enc
+INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc
+INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolD.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/tempora/tmp_jglahm.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolA.enc
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/enc/dvips/mnsymbol/MnSymbolE.enc
@@ -1478,6 +1483,7 @@ INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-fin
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr12.pfb
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr6.pfb
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmr8.pfb
+INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/euler/eufm10.pfb
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/amsfonts/symbols/msbm10.pfb
 INPUT /nix/store/k019qj51xkrbscypdvxcynyxk1syx0f2-texlive-combined-full-2022-final-texmfdist/fonts/type1/public/cm-super/sftt1200.pfb

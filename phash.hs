@@ -36,21 +36,21 @@ instance Shifting Char where
 
 mapHashing :: (Shifting b) => (a -> Integer -> b) -> (a -> Integer) -> ([a] -> Integer -> [b])
 mapHashing _ _ [] _ = []
-mapHashing f spr (a:as) key = fres : mapHashing f spr as nextKey
+mapHashing f spr (a:as) key = b : mapHashing f spr as nextKey
     where
     (keyDiv, keyMod) = divMod key $ spr a
-    fres = f a keyMod
-    nextKey = keyDiv + shift fres
+    b = f a keyMod
+    nextKey = keyDiv + shift b
 
 composeHashing :: (a -> Integer -> b) -> (b -> Integer -> c) -> (a -> Integer -> Integer -> c)
 composeHashing f g a key1 key2 = g (f a key1) key2
 
 composeHashing' :: (Shifting b) => (a -> Integer -> b) -> (a -> Integer) -> (b -> Integer -> c) -> (a -> Integer -> c)
-composeHashing' f spr g a key = g fres nextKey
+composeHashing' f spr g a key = g b nextKey
     where
     (keyDiv, keyMod) = divMod key $ spr a
-    fres = f a keyMod
-    nextKey = keyDiv + shift fres
+    b = f a keyMod
+    nextKey = keyDiv + shift b
 
 -- ┌─────────────────────────────────────────────────────┐
 -- │ PRE-DEFINED STRINGS FROM WHICH HASHES WILL BE DRAWN │
