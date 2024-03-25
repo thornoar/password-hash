@@ -69,7 +69,7 @@ sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
 
 defaultConfiguration :: [([Char], Integer)]
-defaultConfiguration = [(sourceLower, 10), (sourceUpper, 10), (sourceSpecial, 8), (sourceNumbers, 8)]
+defaultConfiguration = [(sourceLower, 10), (sourceUpper, 10), (sourceSpecial, 6), (sourceNumbers, 6)]
 
 defaultAmounts :: [(Integer, Integer)]
 defaultAmounts = map dropElementInfo defaultConfiguration
@@ -208,6 +208,13 @@ timeToCrack num = (floor inYears, floor inAgesOfUniverse)
     inYears = (fromIntegral num) * timeToCheck / psInYear
     inAgesOfUniverse = inYears / ageOfUniverse
 
+formatNumber :: String -> String
+formatNumber num = reverse $ formatReversed (reverse num)
+    where
+    formatReversed :: String -> String
+    formatReversed (a:b:c:d:str) = a:b:c:',':formatReversed (d:str)
+    formatReversed str = str
+
 -- ┌────────────────┐
 -- │ USER INTERFACE │
 -- └────────────────┘
@@ -232,25 +239,24 @@ helpAction cmd amts
         putStrLn "default configuration:"
         putStrLn $ "  " ++ (show defaultConfiguration)
     | cmd == "--numbers" || cmd == "-n" = do
-        putStrLn $ "total theoretical number of hashes:         " ++ (show $ numberOfHashes amts)
-        putStrLn $ "number of choice keys:                      " ++ (show $ numberOfPrivateChoiceKeys amts)
-        putStrLn $ "number of shuffle keys:                     " ++ (show $ numberOfPrivateShuffleKeys $ map snd amts)
-        putStrLn $ "number of key pairs with the same hash:     " ++ (show $ numberOfRepetitions $ map snd amts)
-        putStrLn $ "maximum relevant length of the public key:  " ++ (show $ maxLengthOfPublicKey amts)
+        putStrLn $ "total theoretical number of hashes:         " ++
+            formatNumber (show $ numberOfHashes amts)
+        putStrLn $ "number of choice keys:                      " ++
+            formatNumber (show $ numberOfPrivateChoiceKeys amts)
+        putStrLn $ "number of shuffle keys:                     " ++
+            formatNumber (show $ numberOfPrivateShuffleKeys $ map snd amts)
+        putStrLn $ "number of key pairs with the same hash:     " ++
+            formatNumber (show $ numberOfRepetitions $ map snd amts)
+        putStrLn $ "total hash length:                          " ++ (show $ (sum . map snd) amts) ++ " symbols"
+        putStrLn $ "maximum relevant length of the public key:  " ++ (show $ maxLengthOfPublicKey amts) ++ " symbols"
     | cmd == "--times" || cmd == "-t" = do
         putStrLn $ "assumed time to check one private key:      " ++ "1 picosecond = 10^(-12) s"
         putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfHashes amts
-                in "time to brute-force your password:          " ++ (show inY) ++ " years\n" ++
-                   "                                         or " ++ (show inAoU) ++ " ages of the Universe"
-        -- putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateChoiceKeys amts
-        --         in "time to brute-force your first key:         " ++ (show inY) ++ " years\n" ++
-        --            "                                         or " ++ (show inAoU) ++ " ages of the Universe"
-        -- putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfPrivateShuffleKeys $ map snd amts
-        --         in "time to brute-force your second key:        " ++ (show inY) ++ " years\n" ++
-        --            "                                         or " ++ (show inAoU) ++ " ages of the Universe"
+                in "time to brute-force your password:          " ++ formatNumber (show inY) ++ " years\n" ++
+                   "                                         or " ++ formatNumber (show inAoU) ++ " ages of the Universe"
         putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfRepetitions $ map snd amts
-                in "time to retrieve the keys based on a hash:  " ++ (show inY) ++ " years\n" ++
-                   "                                         or " ++ (show inAoU) ++ " ages of the Universe"
+                in "time to retrieve the keys based on a hash:  " ++ formatNumber (show inY) ++ " years\n" ++
+                   "                                         or " ++ formatNumber (show inAoU) ++ " ages of the Universe"
     | True = putStrLn "error: help command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration

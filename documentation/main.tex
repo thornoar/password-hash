@@ -381,22 +381,22 @@ In this subsection, we will use a specific source configuration $ \conf $, parti
     \hline
     0 & \ttfamily"ckapzfitqdxnwehrolmbyvsujg" & 26 & 10\\
     1 & \ttfamily"RQLIANBKJYVWPTEMCZSFDOGUHX" & 26 & 10\\
-    2 & \ttfamily"=!*@?\$\%\#\&-\^{}+"        & 12 & 5\\
-    3 & \ttfamily"1952074386"                 & 10 & 5\\
+    2 & \ttfamily"=!*@?\$\%\#\&-+\^{}"        & 12 & 6\\
+    3 & \ttfamily"1952074386"                 & 10 & 6\\
 \end{tabular}
 \end{center}
 
-% Therefore, every password produced with this configuration will contain a total of 30 symbols, 10, 10, 5 and 5 from their respective categories.
-%
-% Now, let's imagine that you have inserted your two private keys into the function and got a password out of it. A sophisticated hacker sets their mind to crack your password whatever it takes. They are very smart and they have a supercomputer that can perform 1,000,000,000,000 password checks in a second, or one picosecond to check one password or key. What's more, they got their hands on the hash function and the configuration you use, so they can try to reverse-engineer your password.
-%
-% First, they read into the configuration and see the structure of the password. They decide to brute-force it by checking every relevant combination of 30 symbols. Well, they will have to check $ \#^{\H}(\conf) $ combinations, which in our case equals exactly
-% \[ \#^{\H}(\conf) = 1,493,683,548,205,755,958,753,683,829,702,969,075,433,472,000,000,000. \] 
-%
-% Cracking it would take the supercomputer about $ 47,331,975,441,914,340,970,572,896,272,384 $ years, or about 3 billion of millions of millions of ages of the Universe.\\
-%
-% Okay, thinks the hacker, no luck. They dig a little deeper into the algorithm and find that your password depens on two private keys. The number of all pairs of such keys is
-%
+Therefore, every password produced with this configuration will contain a total of 32 symbols, 10, 10, 6 and 6 from their respective categories.
+
+Now, let's imagine that you have inserted your two private keys into the function and got a password out of it. A sophisticated hacker sets their mind to crack your password whatever it takes. They are very smart and they have a supercomputer that can perform 1,000,000,000,000 password checks in a second, or one picosecond to check one password or key. What's more, they got their hands on the hash function and the configuration you use, so they can try to reverse-engineer your password.
+
+First, they read into the configuration and see the structure of the password. They decide to brute-force it by checking every relevant combination of 30 symbols. Well, they will have to check $ \#^{\H}(\conf) $ combinations, which in our case equals exactly
+\[ \#^{\H}(\conf) = 1,440,574,799,825,106,857,997,997,293,535,752,397,195,837,440,000,000,000 \]
+
+Cracking it would take the supercomputer about $ 45,649,060,759,535,167,757,411,626,837,344,256 $ years, or about $ 3,311,022,032,315,599,250,522,112 $ ages of the Universe.\\
+
+Okay, thinks the hacker, no luck. They dig a little deeper into the algorithm and find that your password depens on two private keys. The number of all pairs of such keys is
+
 % \[
 % \#^{(k_1,k_2)}(\conf) = \begin{array}[t]{l}
 %     283,235,154,137,060,638,511,193,623,530,464,\\
