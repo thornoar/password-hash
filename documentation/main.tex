@@ -52,7 +52,7 @@
 \hrule
 \vspace*{.2in}
 \begin{center}
-    \includegraphics[width = 1in]{./figures/haskell.png}
+    \includegraphics[width = 1.5in]{./figures/haskell.png}
     \vfill
     \today
 \end{center}
@@ -419,8 +419,6 @@ All the above calculations are based on the premise that the hacker will not get
 
 But anyway, how can \emph{you} get some of those hashes yourself?
 
-% \newpage
-
 \section{The implementation}
 
 \subsection{A brief introduction to Haskell}
@@ -436,6 +434,16 @@ It is obvious that the hashing algorithm, which is basically a mathematical func
 
 \subsection{The \texttt{phash} program}
 
-\texttt{"phash"} (from "password-hash") is the name of the implementation of the hash function described in the previous section. The source, written in Haskell, as well as the binary of the program, are available at \url{https://github.com/thornoar/password-hash}
+\texttt{phash} (from "password-hash") is the name of the implementation of the hash function described in the previous section. There is no front-end or GUI, it is only a command-line utility designed to be simple and lightweight. The source, written in Haskell, as well as the binary of the program, are available at \url{https://github.com/thornoar/password-hash}. The code repeats the definitions explained in the previous section almost verbatim --- such is the benefit of functional programming.\\
+
+The program accepts three arguments: the public key and two private keys, returning a hash using its builtin source configuration. On demand, the user may pass a different configuration as the fourth argument, but this is not recommended, since it will have to be done every time. Instead, it is suggested to download the source, change the default configuration in the code, and then compile it to a new executable. You can run \texttt{"phash ---help"} to see all available options.\\
+
+\textbf{! Important notice !}
+
+The program is \emph{extremely sensitive to changes}. Thus, before using it to create passwords, make sure that the configuration is set to your liking, save the executable and do not change it afterwards. Any small change, and your passwords will be lost. You will have to undo the change to retrieve them. Additionally, it is advised to store the program openly on the internet, in case you lose your local copy. This way, you can access it from anywhere with an internet connection. Note that the binary on my GitHub is only for Linux operating systems, you will have to compile the source for Windows and MacOS yourself, or wait until I add these binaries.
+
+\subsection{Future plans}
+
+The main problem with this implementation is lack of accessibility. A good solution would be to create and host a website where the algorithm would be implemented, so that hashes could be generated from any device with an internat browser. On the local scale, It it planned to port the program on Windows, MacOS and Android.
 
 \end{document}

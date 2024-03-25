@@ -12,3 +12,4 @@
 \contentsline {section}{\numberline {3}The implementation}{13}{section.3}%
 \contentsline {subsection}{\numberline {3.1}A brief introduction to Haskell}{13}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}The \texttt {phash} program}{14}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Future plans}{14}{subsection.3.3}%
