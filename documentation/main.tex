@@ -366,7 +366,7 @@ With respect to each of the two keys, $ \H $ is an injective function, but in co
 
 \subsection{Producing different hashes with the same private keys}
 
-The premise of this entire discussion was that one requires many passwords for different purposes. Right now, the only way is to create a new primary-secondary key pair for every new occasion. Considering how large these numbers tend to be, you may as well try to remember the hashes themselves. This is where the public key comes into play. The public key, denoted $ p $, is an integer number defined by the environment and available to the public. We will assume that it is the name of the website for which we require a password, like \texttt{"google"}, for example, converted into a number by treating the characteers in the string as digits in base-128. This number acts on the choice private key by shifting it modulo $ \#^{\M\C}(\conf) $:
+The premise of this entire discussion was that one requires many passwords for different purposes. Right now, the only way is to create a new primary-secondary key pair for every new occasion. Considering how large these numbers tend to be, you may as well try to remember the hashes themselves. This is where the public key comes into play. The public key, denoted $ p $, is an integer number defined by the environment and available to the public. We will assume that it is the name of the website for which we require a password, like \texttt{"google"}, for example, converted into a number by treating the characters in the string as digits in base-128. This number acts on the choice private key by shifting it modulo $ \#^{\M\C}(\conf) $:
 \[ k_1' = \lui{\#^{\M\C}(\conf)}(k_1 + p), \] 
 and then this new choice key is plugged into the hash function along with the shuffle key. Due to the injectivity of $ \H $ with respect to $ k_1 $, we see that different public keys produce different output hashes, as long as they remain in the interval $ \left( \#^{\M\C}(\conf) \right) $. Its influence on $ k_1 $ is simple and predictable, but it doesn't have to be complex, since the public key is not directly responsible for any encryption. Instead it is designed to be easily remembered.
 
@@ -444,6 +444,6 @@ The program is \emph{extremely sensitive to changes}. Thus, before using it to c
 
 \subsection{Future plans}
 
-The main problem with this implementation is lack of accessibility. A good solution would be to create and host a website where the algorithm would be implemented, so that hashes could be generated from any device with an internat browser. On the local scale, It it planned to port the program on Windows, MacOS and Android.
+The main problem with this implementation is lack of accessibility. A good solution would be to create and host a website where the algorithm would be implemented, so that hashes could be generated from any device with an internet browser. On the local scale, It it planned to port the program on Windows, MacOS and Android.
 
 \end{document}
