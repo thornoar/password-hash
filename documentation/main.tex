@@ -36,7 +36,7 @@
 
 \thispagestyle{empty}
 \vspace*{.6in}
-{ \Huge\bfseries On rearrangement hashing with Haskell }\par
+{ \Huge\bfseries On multiselection hashing with Haskell }\par
 \vspace*{.1in}
 { \Large Roman Maksimovich }
 \par
@@ -46,7 +46,7 @@
 \hrule
 \vspace*{.1in}
 \begin{minipage}{0.9\textwidth}
-    In this paper I introduce and develop a mathematical method of producing a cryptographic hash of adjustable length, given a public key and a private key. The hashing is done through encoding selections and permutations with natural numbers, and then composing the hash from a set of source strings with respect to the permutations encoded by the keys. The attempts to construct a suitable integer-to-selection mapping leads to interesting mathematical definitions and statements, which are discussed in this paper and applied to give bounds on the reliability of the hashing algorithm. An implementation is provided in the Haskell programming language (source available at \url{https://github.com/thornoar/password-hash}) and applied in the setting of password creation. In the paper, the details of the implementation are discussed, as well as the connections between it and the corresponding mathematical model.
+    In this paper I introduce and develop a mathematical method of producing a cryptographic hash of adjustable length, given a public key and a pair of private keys. The hashing is done through encoding selections and permutations with natural numbers, and then composing the hash from a set of source strings with respect to the permutations encoded by the keys. The attempts to construct a suitable integer-to-selection mapping lead to interesting mathematical definitions and statements, which are discussed in this paper and applied to give bounds on the reliability of the hashing algorithm. An implementation is provided in the Haskell programming language (source and binary available at \url{https://github.com/thornoar/password-hash}) and applied in the setting of password creation. In the paper, the details of the implementation are discussed, as well as the connections between it and the corresponding mathematical model.
 \end{minipage}
 \vspace*{.1in}
 \hrule
@@ -70,7 +70,7 @@ The motivation behind the topic lies in the management of personal passwords. No
     \item \textbf{Storing the passwords in a secure location.} Arguably, this is a better method, but there is a natural risk of this location being revealed, or of the passwords being lost, especially if they are stored physically on a piece of paper. Currently, various "password managers" are available, which are software programs that will create and store your passwords for you. It is usually unclear, however, how this software works and whether it can be trusted with one's potentially very sensitive passwords. After all, guessing the password to the password manager is enough to have all the other passwords exposed.
 \end{itemize}
 
-In this paper I suggest a way of doing neither of these things. The user will not know the passwords or have any connection to them whatsoever, and at the same time the passwords will not be stored anywhere, physically or digitally. In this system, every password is a cryptographic hash produced by a fixed hashing algorithm. The algorithm requires two inputs: the public key, i.e. the name of the website or service, and the private key, which is an arbitrary positive integer known only to the user. Every time when retrieving a password, the user will use the keys to re-create it from scratch. Therefore, in order to be reliable, the algorithm must be "pure", i.e. must always return the same output given the same input. Additionally, the algorithm must be robust enough so that, even if a hacker had full access to it and its working, they would still not be able to guess the user's private key or the passwords that it produces. These considerations naturally lead to exploring pure mathematical functions as hashing algorithms and implementing them in a functional programming language such as Haskell.
+In this paper I suggest a way of doing neither of these things. The user will not know the passwords or have any connection to them whatsoever, and at the same time the passwords will not be stored anywhere, physically or digitally. In this system, every password is a cryptographic hash produced by a fixed hashing algorithm. The algorithm requires two inputs: one public key, i.e. the name of the website or service, and one (or more) private key, which is an arbitrary positive integer known only to the user. Every time when retrieving a password, the user will use the keys to re-create it from scratch. Therefore, in order to be reliable, the algorithm must be "pure", i.e. must always return the same output given the same input. Additionally, the algorithm must be robust enough so that, even if a hacker had full access to it and its working, they would still not be able to guess the user's private key or the passwords that it produces. These considerations naturally lead to exploring pure mathematical functions as hashing algorithms and implementing them in a functional programming language such as Haskell.
 
 \section{The theory}
 
@@ -370,7 +370,7 @@ The premise of this entire discussion was that one requires many passwords for d
 \[ k_1' = \lui{\#^{\M\C}(\conf)}(k_1 + p), \] 
 and then this new choice key is plugged into the hash function along with the shuffle key. Due to the injectivity of $ \H $ with respect to $ k_1 $, we see that different public keys produce different output hashes, as long as they remain in the interval $ \left( \#^{\M\C}(\conf) \right) $. Its influence on $ k_1 $ is simple and predictable, but it doesn't have to be complex, since the public key is not directly responsible for any encryption. Instead it is designed to be easily remembered.
 
-\subsection{Counting ages of the Universe}
+\subsection{Counting ages of the Universe}\label{bignum}
 
 In this subsection, we will use a specific source configuration $ \conf $, particularly the following:
 
@@ -395,25 +395,47 @@ First, they read into the configuration and see the structure of the password. T
 
 Cracking it would take the supercomputer about $ 45,649,060,759,535,167,757,411,626,837,344,256 $ years, or about $ 3,311,022,032,315,599,250,522,112 $ ages of the Universe.\\
 
-Okay, thinks the hacker, no luck. They dig a little deeper into the algorithm and find that your password depens on two private keys. The number of all pairs of such keys is
+Okay, thinks the hacker, no luck. They dig a little deeper into the algorithm and find that your password depends on two private keys. The number of all pairs of such keys is
 
-% \[
-% \#^{(k_1,k_2)}(\conf) = \begin{array}[t]{l}
-%     283,235,154,137,060,638,511,193,623,530,464,\\
-%     898,307,082,375,546,273,792,000,000,000,000,000
-% \end{array}
-% \]
-%
-% This one is going to take billions of billions times longer than the previous one.\\
-%
-% Okay, thinks the hacker, the night is young. They are able to get their hands on one of your 30-symbol passwords because of a security leak on the website you were registered to. They have also dug ears deep into the hash function and understood how it works to the tiniest detail. Now, they want to retrieve your private keys to be able to generate your passwords to all other websites and services you use. They see that your password starts with a \texttt{'W'}. They know it was shuffled from some other position by the shuffle function, $ \S(-, k_2) $, but they don't know what the password was before the shuffling. What they do know is that your password is produced by
-% \[ \#^{\cap}(\conf) = 189,621,927,936,000,000 \]
-% different $ (k_1, k_2) $ pairs. The hacker now has essentially two options:
+\[
+\#^{(k_1,k_2)}(\conf) = \begin{array}[t]{l}
+    379,059,652,743,568,391,652,983,773,439,703,034,\\
+    548,996,102,937,151,934,408,805,894,943,303,270,\\
+    400,000,000,000,000,000
+\end{array}
+\]
 
+This one is going to take billions of billions times longer than the previous one.\\
 
+Okay, thinks the hacker, the night is young. They are able to get their hands on one of your 32-symbol passwords because of a security leak on the website you were registered to. They have also dug ears deep into the hash function and understood how it works to the tiniest detail. Now, they want to retrieve your private keys to be able to generate your passwords to all other websites and services you use. They see that your password starts with a \texttt{'W'}. They know it was shuffled from some other position by the shuffle function, $ \S(-, k_2) $, but they don't know what the password was before the shuffling. What they do know is that your password is produced by
+\[ \#^{\cap}(\conf) = 263,130,836,933,693,530,167,218,012,160,000,000 \]
+different $ (k_1, k_2) $ pairs. The hacker can (relatively) easily retrieve any one of these pairs by substituting the intermediary layer $ \alpha $ (after the application of $ \M\C $, but before $ \S $) of their choosing, and then solve for the two keys. The problem is that if the keys they receive differ from the true keys, they will not produce the correct password given a different public key. Therefore, to get the key to another website, the hacker would need to go through all of $ \#^{\cap}(\conf) $ different combinations, which will take them about $ 8,338,113,067,333,812 $ years, or $ 604,780 $ ages of the Universe. It is, of course, almost infinitely better than brute-forcing the password from scratch (after all, the resulting hash does give the hacker a lot of information about the original keys), but it is still pretty much impossible.\\
+
+After that, the hacker can go to sleep and forget about cracking your password, because they have nothing left to try. And you can go to sleep knowing that your accounts are safe.
+
+\subsection{Some advice}
+
+All the above calculations are based on the premise that the hacker will not get your key pair among the first couple of hundreds, that they will have to deplete the entire spread of the hash function to find your choice-shuffle pair. Therefore, if your pair is something like $ (14, 245) $, the password will not take a single millisecond to be broken. It is therefore advisory that the keys be very large --- somewhere in the middle of the spread. You can practice your memory and remember two large numbers, if you are not afraid of forgetting them (and you should be). Or, you can take the factorial, or a power, of a smaller number and remember that number instead.\\
+
+But anyway, how can \emph{you} get some of those hashes yourself?
+
+% \newpage
+
+\section{The implementation}
+
+\subsection{A brief introduction to Haskell}
+
+Haskell, named after mathematician Haskell Curry, is one of the most renown functional programming languages. The term "functional" here refers to the following principles:
+
+\begin{itemize}
+    \item \textbf{Function purity.} While in standard procedural languages a function is usually just a macro, i.e. a piece of code that can be run multiple times, in Haskell and other functional languages functions are understood mathematically. They are abstract and immutable objects that accept inputs and return outputs. They do not have access to any external variables that are not functions themselves. That property is called \emph{purity}.
+    \item \textbf{Stateless programming.} Ever since the model of Turing machines, the idea of state has been integral to programming. It implies that a program can be in different states, which affects its behavior. This does, however, make the program potentially more unpredictable, since, even given the same input twice, it may return different outputs based on its state. In functional programming, state does not exist. All functions and variables are constant and are not allowed to change. As a result, a Haskell program, much like a mathematical function, is guaranteed to give the same result with the same input.
+\end{itemize}
+
+It is obvious that the hashing algorithm, which is basically a mathematical function and which must return the same hash given the same keys, is best implemented in a functional programming language. Haskell has been chosen because of its simple (yet unconventional) syntax, as well as amazing flexibility and a developed infrastructure for working with numbers and strings. Particularly, it has the ability to store integer numbers of \emph{arbitrary length} (not just, say, 8 bytes). This is crucial given the monstrous numbers seen in subsection \ref{bignum}.
+
+\subsection{The \texttt{phash} program}
+
+\texttt{"phash"} (from "password-hash") is the name of the implementation of the hash function described in the previous section. The source, written in Haskell, as well as the binary of the program, are available at \url{https://github.com/thornoar/password-hash}
 
 \end{document}
-
-
-% = \frac{\#^{(k_1,k_2)}}{\#^{\cap}(\conf)} = \frac{\prod\limits_{i = 0}^{N-1} (n_i \mid m_i)! \cdot \left(\sum\nolimits_{i = 0}^{N-1} m_i\right)!}{\prod\limits_{i = 0}^{N-1} (m_i)!}
-% Since there are $ m_i! $ ways to reorder every sub-list chosen by $ \CC $ from $ E_i $, the amount of lost information accounts for a total of $ \prod_{i = 0}^{N-1} (m_i!) $, which will be denoted by $ \#^{\cap}(\conf) $. It is the number of pairs $ (k_1, k_2) $ that produce the exact same hash. Hence, we see that the number of possible outputs of the hash function, given a configuration $ \conf $, is

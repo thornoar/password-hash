@@ -8,3 +8,7 @@
 \contentsline {subsection}{\numberline {2.6}Double encryption}{10}{subsection.2.6}%
 \contentsline {subsection}{\numberline {2.7}Producing different hashes with the same private keys}{12}{subsection.2.7}%
 \contentsline {subsection}{\numberline {2.8}Counting ages of the Universe}{12}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.9}Some advice}{13}{subsection.2.9}%
+\contentsline {section}{\numberline {3}The implementation}{13}{section.3}%
+\contentsline {subsection}{\numberline {3.1}A brief introduction to Haskell}{13}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}The \texttt {phash} program}{14}{subsection.3.2}%
