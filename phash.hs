@@ -71,9 +71,6 @@ sourceNumbers = "1952074386"
 defaultConfiguration :: [([Char], Integer)]
 defaultConfiguration = [(sourceLower, 8), (sourceUpper, 8), (sourceSpecial, 5), (sourceNumbers, 4)]
 
-defaultAmounts :: [(Integer, Integer)]
-defaultAmounts = map dropElementInfo defaultConfiguration
-
 -- ┌───────────────────────────┐
 -- │ HASH GENERATING FUNCTIONS │
 -- └───────────────────────────┘
@@ -121,13 +118,11 @@ mergeLists (l:ls) key = mergeTwoLists l (mergeLists ls keyMod) nextKey
     nextKey = keyDiv + shift l
 
 mergeListsSpread :: [Integer] -> Integer
-mergeListsSpread amts = div (factorial $ sum amts) ((product . map factorial) amts)
+mergeListsSpread amts = div (factorial $ sum amts) (product $ map factorial amts)
 
 getChoiceAndMerge :: (Eq a, Shifting a) => [([a], Integer)] -> Integer -> [a]
-getChoiceAndMerge = composeHashing'
-    (mapHashing chooseOrdered (chooseSpread . dropElementInfo))
-    (product . map (chooseSpread . dropElementInfo))
-    mergeLists
+getChoiceAndMerge = let chooseSpread' = chooseSpread . dropElementInfo in
+    composeHashing' (mapHashing chooseOrdered chooseSpread') (product . map chooseSpread') mergeLists
 
 -- Get a hash sequence from a key and a source configuration
 getHash :: (Eq a, Shifting a) => [([a], Integer)] -> Integer -> Integer -> [a]
@@ -257,7 +252,7 @@ helpAction cmd amts
         putStrLn $ let (inY, inAoU) = timeToCrack $ numberOfRepetitions $ map snd amts
                 in "time to retrieve the keys based on a hash:  " ++ formatNumber (show inY) ++ " years\n" ++
                    "                                         or " ++ formatNumber (show inAoU) ++ " ages of the Universe"
-    | True = putStrLn "error: help command not recognized"
+    | otherwise = putStrLn "error: help command not recognized"
 
 -- Prints the hash (password) given public and private strings and a hash configuration
 hashAction :: String -> String -> String -> [([Char], Integer)] -> IO ()
