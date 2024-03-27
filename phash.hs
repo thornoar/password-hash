@@ -69,7 +69,7 @@ sourceNumbers :: [Char]
 sourceNumbers = "1952074386"
 
 defaultConfiguration :: [([Char], Integer)]
-defaultConfiguration = [(sourceLower, 10), (sourceUpper, 10), (sourceSpecial, 6), (sourceNumbers, 6)]
+defaultConfiguration = [(sourceLower, 8), (sourceUpper, 8), (sourceSpecial, 5), (sourceNumbers, 4)]
 
 defaultAmounts :: [(Integer, Integer)]
 defaultAmounts = map dropElementInfo defaultConfiguration
