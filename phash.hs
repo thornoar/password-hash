@@ -131,14 +131,29 @@ getHash = composeHashing getChoiceAndMerge shuffleList
     shuffleList :: (Eq a, Shifting a) => [a] -> Integer -> [a]
     shuffleList src key = chooseOrdered (src, len src) key
 
--- ┌─────────────────────────┐
--- │ MANAGING THE PUBLIC KEY │
--- └─────────────────────────┘
+-- ┌──────────────┐
+-- │ READING KEYS │
+-- └──────────────┘
 
 -- Convert a string to a public key by using the base-128 number system.
 getPublicKey :: String -> Integer
 getPublicKey "" = 0
 getPublicKey (c:cs) = (toInteger $ ord c) * (128 ^ (length cs)) + getPublicKey cs
+
+breakAtPower :: String -> (String, String)
+breakAtPower s = (fst, snd')
+    where
+    (fst, snd) = break (== '^') s
+    snd' = if (0 == length snd) then snd else tail snd
+
+getPrivateKey :: String -> Integer
+getPrivateKey s = base ^ pow
+    where
+    (baseStr, powStr) = breakAtPower s
+    base :: Integer
+    base = read baseStr
+    pow :: Integer
+    pow = if (0 == length powStr) then 1 else read powStr
 
 -- ┌──────────────────┐
 -- │ COUNTING NUMBERS │
@@ -261,9 +276,9 @@ hashAction publicStr pcs pss config = putStrLn $ getHash config privateChoiceKey
     publicKey :: Integer
     publicKey = getPublicKey publicStr
     privateChoiceKey :: Integer
-    privateChoiceKey = mod (publicKey + read pcs) $ (numberOfPrivateChoiceKeys . map dropElementInfo) config
+    privateChoiceKey = mod (publicKey + getPrivateKey pcs) $ (numberOfPrivateChoiceKeys . map dropElementInfo) config
     privateShuffleKey :: Integer
-    privateShuffleKey = read pss
+    privateShuffleKey = getPrivateKey pss
 
 -- The main process
 main :: IO ()
